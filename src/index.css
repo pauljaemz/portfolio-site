@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-bg: #050505;
+  --color-amber-accent: #f59e0b;
+  --color-cyan-neon: #00ffcc;
+  --font-sans: "DM Sans", "Plus Jakarta Sans", sans-serif;
+  --font-mono: "Space Mono", monospace;
+  --font-display: "Clash Display", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-dark-bg);
+  color: white;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Base utility for glassmorphism */
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Hide native OS cursor on hover-supported desktop browsers to allow custom cursor */
+@media (hover: hover) {
+  html,
+  body,
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    cursor: none !important;
+  }
+}
+
+/* Dotted tech grid overlay background */
+.tech-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Smooth drifting ambient gradient animation */
+@keyframes drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.15);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.9);
+  }
+}
+
+.animate-drift-slow {
+  animation: drift 20s infinite ease-in-out;
+}
+
+.animate-drift-slower {
+  animation: drift 28s infinite ease-in-out reverse;
+}
+
+/* Looping marquee animation for horizontal cars/jet wireframes */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee 30s linear infinite reverse;
+}
+
+/* Drifting/floating animation for background technical assets */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s infinite ease-in-out;
+}
+
+/* High-voltage electricity flicker/buzz animation */
+@keyframes buzz {
+  0%, 100% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(0, 255, 204, 0.5)) drop-shadow(0 0 10px rgba(0, 255, 204, 0.3));
+  }
+  15% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 204, 0.75)) drop-shadow(0 0 16px rgba(0, 255, 204, 0.5));
+  }
+  30% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 3px rgba(0, 255, 204, 0.4)) drop-shadow(0 0 7px rgba(0, 255, 204, 0.2));
+  }
+  45% {
+    opacity: 0.55;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 204, 1)) drop-shadow(0 0 24px rgba(0, 255, 204, 0.65));
+  }
+  60% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 204, 0.6)) drop-shadow(0 0 11px rgba(0, 255, 204, 0.4));
+  }
+  75% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 9px rgba(0, 255, 204, 0.8)) drop-shadow(0 0 18px rgba(0, 255, 204, 0.5));
+  }
+  90% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 204, 0.7)) drop-shadow(0 0 13px rgba(0, 255, 204, 0.45));
+  }
+}
+
+.animate-buzz {
+  animation: buzz 0.2s infinite linear;
+}
+
+/* When gravity is active, override overflow: hidden on all parent sections and containers to allow falling characters and assets to pass boundaries and land in the footer */
+.gravity-active section,
+.gravity-active .overflow-hidden {
+  overflow: visible !important;
+}
