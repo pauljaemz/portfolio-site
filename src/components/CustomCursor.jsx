@@ -94,20 +94,20 @@ export default function CustomCursor() {
           translateY: '-50%',
         }}
         animate={{
-          scale: isHovered ? 1.8 : 1.0,
-          borderColor: isHovered ? 'rgba(245, 158, 11, 0.7)' : 'rgba(0, 255, 204, 0.4)', // Amber vs Cyan
-          backgroundColor: isHovered ? 'rgba(245, 158, 11, 0.15)' : 'rgba(0, 255, 204, 0.05)',
+          scale: isHovered ? 1.6 : 1.0,
+          borderColor: isHovered ? 'rgba(255, 143, 171, 0.7)' : 'rgba(123, 97, 255, 0.4)', // Pink vs Purple
+          backgroundColor: isHovered ? 'rgba(255, 143, 171, 0.15)' : 'rgba(123, 97, 255, 0.05)',
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="w-10 h-10 rounded-full border border-solid backdrop-blur-[2px] shadow-[0_0_15px_rgba(0,255,204,0.1)] mix-blend-screen flex items-center justify-center"
+        className="w-10 h-10 rounded-full border border-solid backdrop-blur-[1px] shadow-[0_0_15px_rgba(123,97,255,0.1)] mix-blend-multiply flex items-center justify-center"
       >
         {/* Glowing aura inside orb */}
         <motion.div
           animate={{
-            scale: isHovered ? 1.5 : 1.0,
-            opacity: isHovered ? 0.4 : 0.2,
+            scale: isHovered ? 1.4 : 1.0,
+            opacity: isHovered ? 0.35 : 0.2,
           }}
-          className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-[#00ffcc] to-[#4f46e5] blur-[4px]"
+          className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-[#FF6B35] to-[#7B61FF] blur-[4px]"
         />
       </motion.div>
 
@@ -120,11 +120,11 @@ export default function CustomCursor() {
           translateY: '-50%',
         }}
         animate={{
-          scale: isHovered ? 0.3 : 1.0,
-          backgroundColor: isHovered ? '#f59e0b' : '#ffffff', // Amber vs White
+          scale: isHovered ? 1.2 : 1.0,
+          backgroundColor: isHovered ? '#FF8FAB' : '#FF6B35', // Pink vs Coral
         }}
         transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-        className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)] z-10 bg-white"
+        className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,107,53,0.4)] z-10"
       />
     </div>
   );

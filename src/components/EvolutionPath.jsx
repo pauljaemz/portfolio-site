@@ -52,39 +52,48 @@ const STAGES = [
 const ALTERNATE_STAGES = [
   {
     index: "01_ALT",
-    name: "FISAT",
+    name: "B.H.S",
     sub: "[DIVERGED]",
-    x: 200,
-    y: 25,
+    x: 180,
+    y: 20,
     labelPosition: "up",
-    pathD: "M 100 70 C 130 70, 150 50, 170 50 C 180 50, 190 35, 200 25"
+    pathD: "M 100 70 C 120 70, 140 40, 160 30 C 170 25, 175 20, 180 20"
   },
   {
     index: "02_ALT",
-    name: "infy",
-    sub: "[UNREALIZED]",
+    name: "FISAT",
+    sub: "[DIVERGED]",
     x: 340,
-    y: 180,
+    y: 190,
     labelPosition: "down",
-    pathD: "M 260 130 C 280 130, 295 155, 310 155 C 320 155, 330 170, 340 180"
+    pathD: "M 260 130 C 280 130, 295 165, 310 175 C 320 180, 330 190, 340 190"
   },
   {
     index: "03_ALT",
-    name: "SASTRA",
-    sub: "[DIVERGED]",
+    name: "infy",
+    sub: "[UNREALIZED]",
     x: 500,
-    y: 35,
+    y: 5,
     labelPosition: "up",
-    pathD: "M 420 50 C 445 50, 460 42, 475 42 C 485 42, 492 38, 500 35"
+    pathD: "M 420 50 C 440 50, 460 25, 480 15 C 490 10, 495 5, 500 5"
   },
   {
     index: "04_ALT",
-    name: "IBM",
-    sub: "[UNREALIZED]",
+    name: "SASTRA",
+    sub: "[DIVERGED]",
     x: 660,
     y: 195,
     labelPosition: "down",
-    pathD: "M 580 150 C 600 150, 615 175, 630 175 C 642 175, 650 185, 660 195"
+    pathD: "M 580 150 C 600 150, 615 175, 630 185 C 642 190, 650 195, 660 195"
+  },
+  {
+    index: "05_ALT",
+    name: "IBM",
+    sub: "[UNREALIZED]",
+    x: 820,
+    y: 20,
+    labelPosition: "up",
+    pathD: "M 740 65 C 760 65, 780 40, 800 30 C 810 25, 815 20, 820 20"
   }
 ];
 
@@ -94,9 +103,9 @@ function MilestoneNode({ stage, pathLength }) {
   const nodeY = stage.y;
   const isUp = stage.y < 100;
 
-  // Since the active path ends at THE FUTURE (x = 900), the active span is 900 units.
-  // The progress along the line is t = stage.x / 900.
-  const t = stage.x / 900;
+  // The active path starts at the right (x = 1000) and grows leftward to x = 0.
+  // The progress along the line is t = (1000 - stage.x) / 1000.
+  const t = (1000 - stage.x) / 1000;
 
   // Directly link opacity, scale, and vertical float offsets to path progress
   const opacity = useTransform(pathLength, [t - 0.05, t], [0, 1]);
@@ -110,15 +119,15 @@ function MilestoneNode({ stage, pathLength }) {
         cx={nodeX}
         cy={nodeY}
         r="6.5"
-        fill={stage.isFuture ? "transparent" : "#00ffcc"}
-        stroke="#00ffcc"
+        fill={stage.isFuture ? "transparent" : "#7B61FF"}
+        stroke="#7B61FF"
         strokeWidth="2.5"
         style={{
           scale,
           opacity,
           filter: stage.isFuture 
-            ? "drop-shadow(0 0 8px rgba(0,255,204,0.6))" 
-            : "drop-shadow(0 0 12px #00ffcc)"
+            ? "drop-shadow(0 0 8px rgba(123,97,255,0.6))" 
+            : "drop-shadow(0 0 12px rgba(123,97,255,0.4))"
         }}
         className={stage.isFuture ? "animate-pulse" : ""}
       />
@@ -126,7 +135,7 @@ function MilestoneNode({ stage, pathLength }) {
         cx={nodeX}
         cy={nodeY}
         r="13"
-        stroke="white"
+        stroke="var(--color-dark-navy)"
         strokeWidth="1"
         strokeOpacity="0.08"
         style={{
@@ -142,7 +151,7 @@ function MilestoneNode({ stage, pathLength }) {
           x={nodeX}
           y={isUp ? nodeY - 16 : nodeY + 28}
           textAnchor="middle"
-          className="font-display font-black text-[9px] md:text-[14px] fill-white tracking-wider md:tracking-widest uppercase hover:fill-[#00ffcc] transition-colors duration-300 select-none cursor-pointer"
+          className="font-display font-black text-[12px] md:text-[14px] fill-dark-navy tracking-wider md:tracking-widest uppercase hover:fill-[#7B61FF] transition-colors duration-300 select-none cursor-pointer"
         >
           {stage.name}
         </text>
@@ -178,16 +187,16 @@ export default function EvolutionPath() {
   return (
     <section 
       ref={containerRef}
-      className="w-full flex flex-col justify-center items-center relative bg-[#020202] border-t border-white/5 overflow-hidden pt-12 pb-24 px-0"
+      className="w-full flex flex-col justify-center items-center relative bg-transparent border-t border-dark-navy/5 overflow-hidden pt-12 pb-24 px-0"
     >
       {/* Ambient background backglows (Linked to scroll scale) */}
       <motion.div 
         style={{ scale: glowScale }}
-        className="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-[#00ffcc]/[0.02] rounded-full blur-[110px] pointer-events-none -z-10" 
+        className="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-[#FF6B35]/[0.03] rounded-full blur-[110px] pointer-events-none -z-10" 
       />
       <motion.div 
         style={{ scale: glowScale }}
-        className="absolute bottom-10 right-1/4 w-[300px] h-[300px] bg-indigo-500/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" 
+        className="absolute bottom-10 right-1/4 w-[300px] h-[300px] bg-[#7B61FF]/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" 
       />
 
       {/* Blueprint grid overlay */}
@@ -200,7 +209,7 @@ export default function EvolutionPath() {
           rotateX,
           transformStyle: "preserve-3d"
         }}
-        className="w-full max-w-none flex flex-col items-center justify-center glass-panel py-12 px-0 border-y border-white/5 bg-[#030303]/30 relative shadow-2xl shadow-[#00ffcc]/[0.005]"
+        className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 border-y border-dark-navy/5 relative"
       >
         
         {/* Section Header */}
@@ -212,7 +221,7 @@ export default function EvolutionPath() {
               scale: headerScale,
               letterSpacing
             }}
-            className="text-4xl md:text-6xl font-display font-black mb-2 text-white origin-center"
+            className="text-4xl md:text-6xl font-display font-black mb-2 text-dark-navy origin-center"
           >
             The Destiny
           </motion.h3>
@@ -223,19 +232,15 @@ export default function EvolutionPath() {
             
             {/* SVG Horizontal Route Map */}
             <svg 
-              className="w-full h-[260px] overflow-visible"
+              className="w-full h-[260px] overflow-visible evolution-svg"
               viewBox="0 0 1000 240" 
               fill="none"
               preserveAspectRatio="none"
+              style={{ filter: "drop-shadow(0px 3px 8px rgba(26,26,46,0.12))" }}
             >
               <style>{`
-                @keyframes routeFlow {
-                  0% { stroke-dashoffset: 40; }
-                  100% { stroke-dashoffset: 0; }
-                }
                 .route-pulse-line {
                   stroke-dasharray: 8, 15;
-                  animation: routeFlow 1.2s linear infinite;
                 }
               `}</style>
 
@@ -255,10 +260,10 @@ export default function EvolutionPath() {
                   <stop offset="100%" stopColor="white" stopOpacity="0.0" />
                 </linearGradient>
 
-                {/* SVG Mask for smooth left-to-right draw reveal of active path */}
+                {/* SVG Mask for smooth right-to-left draw reveal of active path */}
                 <mask id="drawMask">
                   <motion.path
-                    d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
+                    d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
                     stroke="white"
                     strokeWidth="10"
                     strokeLinecap="round"
@@ -283,7 +288,7 @@ export default function EvolutionPath() {
                       d={altStage.pathD}
                       stroke="white"
                       strokeWidth="1.2"
-                      strokeOpacity="0.12"
+                      strokeOpacity="0.4"
                       strokeDasharray="3,4"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -302,7 +307,7 @@ export default function EvolutionPath() {
                       fill="transparent"
                       stroke="white"
                       strokeWidth="1.5"
-                      strokeOpacity="0.25"
+                      strokeOpacity="0.65"
                       strokeDasharray="2,2"
                       initial={{ scale: 0, opacity: 0 }}
                       whileInView={{ scale: 1, opacity: 1 }}
@@ -324,7 +329,7 @@ export default function EvolutionPath() {
                         x={nodeX}
                         y={isUp ? nodeY - 14 : nodeY + 24}
                         textAnchor="middle"
-                        className="font-display font-bold text-[8px] md:text-[10px] fill-white/30 tracking-wider md:tracking-widest uppercase select-none cursor-help hover:fill-white/60 transition-colors"
+                        className="font-display font-bold text-[10px] md:text-[10px] fill-dark-navy/40 tracking-wider md:tracking-widest uppercase select-none cursor-help hover:fill-dark-navy/60 transition-colors"
                       >
                         {altStage.name}
                       </text>
@@ -333,24 +338,24 @@ export default function EvolutionPath() {
                 );
               })}
 
-              {/* 1. Faint Background Dotted Curved Path (already there uniformly from 0 to 985) */}
+              {/* 1. Faint Background Dotted Curved Path */}
               <path
-                d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135 C 915 135, 930 110, 940 115 C 950 120, 970 100, 985 100"
+                d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
                 stroke="white"
                 strokeWidth="1.5"
-                strokeOpacity="0.08"
+                strokeOpacity="0.15"
                 strokeDasharray="4,6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
               />
 
-              {/* 2. Soft Ambient Cyan Glow Path underneath (masked - stops at THE FUTURE [x=900]) */}
+              {/* 2. Soft Ambient White Glow Path underneath (masked) */}
               <path
-                d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
-                stroke="#00ffcc"
+                d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+                stroke="white"
                 strokeWidth="6"
-                strokeOpacity="0.4"
+                strokeOpacity="0.2"
                 filter="url(#neonGlow)"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -358,23 +363,23 @@ export default function EvolutionPath() {
                 mask="url(#drawMask)"
               />
 
-              {/* 3. Crisp White Core Path (masked - stops at THE FUTURE [x=900]) */}
+              {/* 3. Crisp White Core Path (masked) */}
               <path
-                d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
+                d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
                 stroke="white"
                 strokeWidth="2.5"
-                strokeDasharray="12,6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
                 mask="url(#drawMask)"
               />
 
-              {/* 4. Funky Running Lights Pulse Path (masked - stops at THE FUTURE [x=900]) */}
+              {/* 4. Elegant Static White Dashed Core Path (masked) */}
               <path
-                d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
+                d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
                 stroke="white"
                 strokeWidth="1.5"
+                strokeOpacity="0.8"
                 className="route-pulse-line"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -386,7 +391,7 @@ export default function EvolutionPath() {
               <polygon
                 points="979,96 979,104 987,100"
                 fill="white"
-                opacity="0.5"
+                opacity="0.3"
               />
 
               {/* 4. Milestone Station Nodes & Alternating Typography (Linked to scroll growth) */}

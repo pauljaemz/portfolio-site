@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import CustomCursor from './components/CustomCursor';
-import ProblemSolverBlock from './components/ProblemSolverBlock';
 import FloatingAsset from './components/FloatingAsset';
-import EvolutionPath from './components/EvolutionPath';
-import CardTableCapabilities from './components/CardTableCapabilities';
-import GravitySandbox from './components/GravitySandbox';
 import './index.css';
+
+// Dynamically import below-the-fold heavy components for bundle size & network optimizations
+const ProblemSolverBlock = React.lazy(() => import('./components/ProblemSolverBlock'));
+const CardTableCapabilities = React.lazy(() => import('./components/CardTableCapabilities'));
+const EvolutionPath = React.lazy(() => import('./components/EvolutionPath'));
+const GravitySandbox = React.lazy(() => import('./components/GravitySandbox'));
 
 // Reusable animation configuration
 const fadeInUp = {
@@ -36,36 +38,56 @@ const fadeItem = {
   transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
 };
 
+// Glowing cyberpunk tech skeleton loader for dynamic imports
+function TechSkeleton({ height = '400px', label = 'LOADING SYSTEM CAPABILITIES' }) {
+  return (
+    <div 
+      style={{ height }} 
+      className="w-full flex flex-col justify-center items-center bg-[#050505]/60 border-t border-b border-white/5 relative overflow-hidden select-none"
+    >
+      <div className="absolute inset-0 tech-grid opacity-25 pointer-events-none" />
+      <div className="flex flex-col items-center gap-4 animate-pulse">
+        <div className="w-16 h-16 border border-dashed border-[#00ffcc]/35 rounded-2xl flex items-center justify-center">
+          <span className="font-mono text-xs text-[#00ffcc]/40">[...]</span>
+        </div>
+        <span className="font-mono text-[10px] text-[#00ffcc]/60 tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(0,255,204,0.3)]">
+          // {label} // INITIALIZING_STREAM
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const sectionRef = React.useRef(null);
   const [isGravityActive, setIsGravityActive] = React.useState(false);
-  const [isGravityResetting, setIsGravityResetting] = React.useState(false);
-
-  // Sync isGravityResetting when gravity activates
-  React.useEffect(() => {
-    if (isGravityActive) {
-      setIsGravityResetting(true);
-    }
-  }, [isGravityActive]);
+  const [resetCounter, setResetCounter] = React.useState(0);
 
   // Scroll automatic triggers: bottom engages collapse, absolute top resets everything
   React.useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // 1. Scroll to the absolute bottom triggers gravity collapse (within 150px threshold)
-      if (windowHeight + currentScrollY >= documentHeight - 150) {
-        if (!isGravityActive) {
-          setIsGravityActive(true);
-          setIsGravityResetting(true); // Synchronously batch state update to prevent layout race conditions
-        }
-      }
-      
-      // 2. Scroll back to the absolute top of the website resets everything snap back
-      if (currentScrollY <= 8 && isGravityActive) {
-        setIsGravityActive(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+          
+          // 1. Scroll to the absolute bottom triggers gravity collapse (within 150px threshold)
+          if (windowHeight + currentScrollY >= documentHeight - 150) {
+            if (!isGravityActive) {
+              setIsGravityActive(true);
+            }
+          }
+          
+          // 2. Scroll back to the absolute top of the website resets everything snap back
+          if (currentScrollY <= 8 && isGravityActive) {
+            setIsGravityActive(false);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
@@ -97,176 +119,165 @@ export default function App() {
   const card1DropOpacity = useTransform(scrollYProgress, [0.24, 0.40], [0, 1]);
   const card1DropScale = useTransform(scrollYProgress, [0.24, 0.44], [0.75, 1]);
   return (
-    <main className={`min-h-screen bg-[#050505] text-white selection:bg-[#00ffcc]/30 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
+    <main className={`min-h-screen bg-[#FFFBF5] text-[#1A1A2E] selection:bg-[#FF6B35]/20 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
       <CustomCursor />
 
       {/* SECTION 1: THE INTRO / HERO (MASSIVE SCREEN-SPANNING TYPOGRAPHY & PHYSICS-BASED FLOATING ASSETS) */}
-      <section className="relative min-h-screen flex flex-col justify-between px-6 md:px-12 lg:px-24 overflow-hidden py-16">
-        {/* Animated, Drifting Gradient Color Spheres */}
-        <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-gradient-to-tr from-[#00ffcc]/20 to-[#6366f1]/20 rounded-full blur-[110px] -z-10 mix-blend-screen pointer-events-none animate-drift-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-[#f59e0b]/15 to-[#4f46e5]/10 rounded-full blur-[130px] -z-10 mix-blend-screen pointer-events-none animate-drift-slower" />
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Animated, Drifting Playful Ambient Color Spheres */}
+        <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-gradient-to-tr from-[#FF8FAB]/25 to-[#7B61FF]/15 rounded-full blur-[110px] -z-10 pointer-events-none animate-drift-slow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-[#FFD166]/20 to-[#4CC9F0]/10 rounded-full blur-[130px] -z-10 pointer-events-none animate-drift-slower" />
 
         {/* Technical Dotted Grid Backdrop */}
         <div className="absolute inset-0 tech-grid opacity-50 -z-10 pointer-events-none" />
 
-        {/* Spacing Anchor (Top) */}
-        <div className="w-full pt-6 z-30" />
+        <motion.div
+          key={resetCounter}
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0 flex flex-col justify-between px-6 md:px-12 lg:px-24 py-16 overflow-hidden"
+        >
+          {/* Spacing Anchor (Top) */}
+          <div className="w-full pt-6 z-30" />
 
-        {/* 6 Floating, Proximity-Repelling Background Assets (z-10, behind text) */}
-        <div key={isGravityResetting ? 'active' : 'idle'} className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-          {/* Asset 1: Normal Car Outline */}
-          <FloatingAsset initialLeft="12%" initialTop="14%" className="design-asset" isGravityActive={isGravityResetting}>
-            <svg
-              className="w-36 h-20 text-[#00ffcc]/35 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(0,255,204,0.1)]"
-              viewBox="0 0 200 80"
-            >
-              <path
-                d="M 10 55 L 25 50 L 45 42 C 55 38, 65 28, 85 26 C 110 24, 135 24, 155 32 L 175 38 C 185 42, 192 46, 195 55 L 190 60 L 170 60 C 168 48, 148 48, 146 60 L 54 60 C 52 48, 32 48, 30 60 L 10 60 Z"
-                stroke="currentColor"
-                strokeDasharray="4,4"
-              />
-              <path d="M 85 30 L 115 30 L 128 38 L 85 38 Z" stroke="currentColor" />
-              <circle cx="42" cy="60" r="10" stroke="currentColor" />
-              <circle cx="42" cy="60" r="3" stroke="#00ffcc" />
-              <circle cx="158" cy="60" r="10" stroke="currentColor" />
-              <circle cx="158" cy="60" r="3" stroke="#00ffcc" />
-            </svg>
-          </FloatingAsset>
-
-          {/* Asset 2: Single-engine plane */}
-          <FloatingAsset initialLeft="74%" initialTop="16%" className="design-asset" isGravityActive={isGravityActive}>
-            <svg
-              className="w-36 h-20 text-[#00ffcc]/35 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(0,255,204,0.1)]"
-              viewBox="0 0 160 80"
-            >
-              <path
-                d="M 20 40 L 30 36 L 50 34 L 75 35 L 125 44 L 140 44 L 145 28 L 150 28 L 146 46 L 148 48 L 144 50 L 115 50 L 70 48 L 40 46 L 25 44 L 20 40 Z"
-                stroke="currentColor"
-                strokeDasharray="4,4"
-              />
-              <path d="M 20 40 L 16 38 L 16 42 Z M 16 25 L 16 55" stroke="currentColor" />
-              <path d="M 50 34 L 52 30 L 95 30 L 90 34 M 68 34 L 74 46" stroke="currentColor" />
-              <path d="M 40 35 L 45 42 L 58 42 L 68 35 Z" stroke="#00ffcc" />
-              <path d="M 60 48 L 56 58 M 32 45 L 32 58" stroke="currentColor" />
-              <circle cx="56" cy="58" r="3" stroke="currentColor" />
-              <circle cx="32" cy="58" r="3" stroke="currentColor" />
-            </svg>
-          </FloatingAsset>
-
-          {/* Asset 3: Compact Front-View Digital Camera */}
-          <FloatingAsset initialLeft="8%" initialTop="48%" className="design-asset" isGravityActive={isGravityActive}>
-            <svg
-              className="w-24 h-16 text-[#00ffcc]/35 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(0,255,204,0.1)]"
-              viewBox="0 0 100 70"
-            >
-              <rect x="10" y="20" width="80" height="42" rx="4" stroke="currentColor" strokeDasharray="3,3" />
-              <circle cx="50" cy="41" r="16" stroke="currentColor" />
-              <circle cx="50" cy="41" r="9" stroke="#00ffcc" />
-              <path d="M 44 35 A 8 8 0 0 1 56 35" stroke="currentColor" />
-              <rect x="18" y="26" width="12" height="6" rx="1" stroke="currentColor" />
-              <rect x="70" y="26" width="12" height="6" rx="1" stroke="#f59e0b" />
-              <rect x="22" y="16" width="10" height="4" rx="1" stroke="currentColor" />
-              <rect x="68" y="16" width="12" height="4" rx="1" stroke="currentColor" />
-            </svg>
-          </FloatingAsset>
-
-          {/* Asset 4: Skating Shoes */}
-          <FloatingAsset initialLeft="78%" initialTop="45%" className="design-asset" isGravityActive={isGravityActive}>
-            <svg
-              className="w-32 h-20 text-[#00ffcc]/35 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(0,255,204,0.1)]"
-              viewBox="0 0 140 80"
-            >
-              <path
-                d="M 25 50 L 30 20 C 35 15, 52 15, 55 20 L 58 35 L 75 42 C 85 45, 105 45, 110 52 L 115 54 L 110 58 L 25 58 Z"
-                stroke="currentColor"
-                strokeDasharray="4,4"
-              />
-              <path d="M 40 22 Q 48 30, 52 38" stroke="#00ffcc" />
-              <path d="M 30 28 L 56 28 M 31 38 L 57 38" stroke="currentColor" />
-              <rect x="22" y="58" width="94" height="6" rx="2" stroke="currentColor" />
-              <circle cx="34" cy="69" r="8" stroke="currentColor" />
-              <circle cx="34" cy="69" r="2" stroke="#00ffcc" />
-              <circle cx="56" cy="69" r="8" stroke="currentColor" />
-              <circle cx="56" cy="69" r="2" stroke="#00ffcc" />
-              <circle cx="78" cy="69" r="8" stroke="currentColor" />
-              <circle cx="78" cy="69" r="2" stroke="#00ffcc" />
-              <circle cx="100" cy="69" r="8" stroke="currentColor" />
-              <circle cx="100" cy="69" r="2" stroke="#00ffcc" />
-            </svg>
-          </FloatingAsset>
-
-          {/* Asset 5: Open Laptop Outline */}
-          <FloatingAsset initialLeft="42%" initialTop="78%" className="transform -translate-x-1/2 design-asset" isGravityActive={isGravityActive}>
-            <svg
-              className="w-32 h-20 text-[#00ffcc]/35 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(0,255,204,0.1)]"
-              viewBox="0 0 140 80"
-            >
-              <path d="M 25 15 L 115 15 L 110 52 L 30 52 Z" stroke="currentColor" strokeDasharray="4,4" />
-              <path d="M 38 22 L 58 22 M 38 30 L 78 30 M 38 38 L 68 38" stroke="#00ffcc" strokeOpacity="0.8" />
-              <path d="M 38 46 L 50 46" stroke="#f59e0b" />
-              <path d="M 30 52 L 15 62 L 125 62 L 110 52" stroke="currentColor" />
-              <path d="M 15 62 C 15 65, 20 66, 25 66 L 115 66 C 120 66, 125 65, 125 62" stroke="currentColor" />
-              <rect x="35" y="55" width="70" height="4" rx="1" stroke="currentColor" strokeOpacity="0.4" />
-              <rect x="58" y="60" width="24" height="4" rx="1" stroke="currentColor" />
-            </svg>
-          </FloatingAsset>
-
-          {/* Asset 6: 'hustleit' Text */}
-          <FloatingAsset initialLeft="44%" initialTop="26%" className="transform -translate-x-1/2 design-asset" isGravityActive={isGravityActive}>
-            <div className="px-5 py-2.5 border border-[#00ffcc]/10 bg-black/45 backdrop-blur-md rounded-2xl filter drop-shadow-[0_0_15px_rgba(0,255,204,0.12)]">
-              <h4
-                className="font-mono text-xl md:text-2xl font-black uppercase text-transparent tracking-[0.25em]"
-                style={{ WebkitTextStroke: '1px rgba(0, 255, 204, 0.6)' }}
+          {/* 6 Floating, Proximity-Repelling Background Assets (z-10, behind text) */}
+          <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+            {/* Asset 1: Normal Car Outline */}
+            <FloatingAsset initialLeft="12%" initialTop="14%" className="design-asset" isGravityActive={isGravityActive}>
+              <svg
+                className="w-36 h-20 text-[#7B61FF]/30 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(123,97,255,0.06)]"
+                viewBox="0 0 200 80"
               >
-                hustleit
-              </h4>
-            </div>
-          </FloatingAsset>
-        </div>
+                <path
+                  d="M 10 55 L 25 50 L 45 42 C 55 38, 65 28, 85 26 C 110 24, 135 24, 155 32 L 175 38 C 185 42, 192 46, 195 55 L 190 60 L 170 60 C 168 48, 148 48, 146 60 L 54 60 C 52 48, 32 48, 30 60 L 10 60 Z"
+                  stroke="currentColor"
+                  strokeDasharray="4,4"
+                />
+                <path d="M 85 30 L 115 30 L 128 38 L 85 38 Z" stroke="currentColor" />
+                <circle cx="42" cy="60" r="10" stroke="currentColor" />
+                <circle cx="42" cy="60" r="3" stroke="#FF6B35" />
+                <circle cx="158" cy="60" r="10" stroke="currentColor" />
+                <circle cx="158" cy="60" r="3" stroke="#FF6B35" />
+              </svg>
+            </FloatingAsset>
 
-        {/* Center Screen: Massive Screen-Spanning Header (z-20, in front of assets) */}
-        <div className="flex-1 flex flex-col justify-center items-center select-none pointer-events-none z-20 my-auto relative">
-          <motion.h1
-            key={isGravityResetting ? 'active' : 'idle'}
-            initial={{ opacity: 0, scale: 0.95, y: 35, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{
-              duration: 1.3,
-              ease: [0.16, 1, 0.3, 1], // Cinematic ultra-premium ease-out curve
-            }}
-            className="text-[12vw] sm:text-[14vw] md:text-[15vw] font-display font-black leading-none tracking-tighter uppercase text-center text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/[0.08] drop-shadow-[0_0_40px_rgba(0,255,204,0.22)] select-none exclude-sandbox-fade"
-          >
-            PAUL JAMES.
-          </motion.h1>
-          <motion.h2
-            key={isGravityResetting ? 'active' : 'idle'}
-            initial={{ opacity: 0, y: 25, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{
-              duration: 1.3,
-              ease: [0.16, 1, 0.3, 1],
-              delay: 0.12, // Cinematic staggered reveal
-            }}
-            className="text-xl md:text-3xl font-display font-black tracking-[0.15em] text-[#00ffcc] uppercase mt-6 drop-shadow-[0_0_16px_rgba(0,255,204,0.6)] text-center exclude-sandbox-fade"
-          >
-            FOUNDER OF DREAMSMITH. MY LIFE'S WORK.
-          </motion.h2>
-        </div>
+            {/* Asset 2: Single-engine plane */}
+            <FloatingAsset initialLeft="74%" initialTop="16%" className="design-asset" isGravityActive={isGravityActive}>
+              <svg
+                className="w-36 h-20 text-[#7B61FF]/30 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(123,97,255,0.06)]"
+                viewBox="0 0 160 80"
+              >
+                <path
+                  d="M 20 40 L 30 36 L 50 34 L 75 35 L 125 44 L 140 44 L 145 28 L 150 28 L 146 46 L 148 48 L 144 50 L 115 50 L 70 48 L 40 46 L 25 44 L 20 40 Z"
+                  stroke="currentColor"
+                  strokeDasharray="4,4"
+                />
+                <path d="M 20 40 L 16 38 L 16 42 Z M 16 25 L 16 55" stroke="currentColor" />
+                <path d="M 50 34 L 52 30 L 95 30 L 90 34 M 68 34 L 74 46" stroke="currentColor" />
+                <path d="M 40 35 L 45 42 L 58 42 L 68 35 Z" stroke="#FF6B35" />
+                <path d="M 60 48 L 56 58 M 32 45 L 32 58" stroke="currentColor" />
+                <circle cx="56" cy="58" r="3" stroke="currentColor" />
+                <circle cx="32" cy="58" r="3" stroke="currentColor" />
+              </svg>
+            </FloatingAsset>
+
+            {/* Asset 3: Compact Front-View Digital Camera */}
+            <FloatingAsset initialLeft="8%" initialTop="48%" className="design-asset" isGravityActive={isGravityActive}>
+              <svg
+                className="w-24 h-16 text-[#7B61FF]/30 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(123,97,255,0.06)]"
+                viewBox="0 0 100 70"
+              >
+                <rect x="10" y="20" width="80" height="42" rx="4" stroke="currentColor" strokeDasharray="3,3" />
+                <circle cx="50" cy="41" r="16" stroke="currentColor" />
+                <circle cx="50" cy="41" r="9" stroke="#FF6B35" />
+                <path d="M 44 35 A 8 8 0 0 1 56 35" stroke="currentColor" />
+                <rect x="18" y="26" width="12" height="6" rx="1" stroke="currentColor" />
+                <rect x="70" y="26" width="12" height="6" rx="1" stroke="#FFD166" />
+                <rect x="22" y="16" width="10" height="4" rx="1" stroke="currentColor" />
+                <rect x="68" y="16" width="12" height="4" rx="1" stroke="currentColor" />
+              </svg>
+            </FloatingAsset>
+
+            {/* Asset 4: Skating Shoes */}
+            <FloatingAsset initialLeft="78%" initialTop="45%" className="design-asset" isGravityActive={isGravityActive}>
+              <svg
+                className="w-32 h-20 text-[#7B61FF]/30 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(123,97,255,0.06)]"
+                viewBox="0 0 140 80"
+              >
+                <path
+                  d="M 25 50 L 30 20 C 35 15, 52 15, 55 20 L 58 35 L 75 42 C 85 45, 105 45, 110 52 L 115 54 L 110 58 L 25 58 Z"
+                  stroke="currentColor"
+                  strokeDasharray="4,4"
+                />
+                <path d="M 40 22 Q 48 30, 52 38" stroke="#FF6B35" />
+                <path d="M 30 28 L 56 28 M 31 38 L 57 38" stroke="currentColor" />
+                <rect x="22" y="58" width="94" height="6" rx="2" stroke="currentColor" />
+                <circle cx="34" cy="69" r="8" stroke="currentColor" />
+                <circle cx="34" cy="69" r="2" stroke="#FF6B35" />
+                <circle cx="56" cy="69" r="8" stroke="currentColor" />
+                <circle cx="56" cy="69" r="2" stroke="#FF6B35" />
+                <circle cx="78" cy="69" r="8" stroke="currentColor" />
+                <circle cx="78" cy="69" r="2" stroke="#FF6B35" />
+                <circle cx="100" cy="69" r="8" stroke="currentColor" />
+                <circle cx="100" cy="69" r="2" stroke="#FF6B35" />
+              </svg>
+            </FloatingAsset>
+
+            {/* Asset 5: Open Laptop Outline */}
+            <FloatingAsset initialLeft="42%" initialTop="78%" className="transform -translate-x-1/2 design-asset" isGravityActive={isGravityActive}>
+              <svg
+                className="w-32 h-20 text-[#7B61FF]/30 stroke-[1.5] fill-none filter drop-shadow-[0_0_10px_rgba(123,97,255,0.06)]"
+                viewBox="0 0 140 80"
+              >
+                <path d="M 25 15 L 115 15 L 110 52 L 30 52 Z" stroke="currentColor" strokeDasharray="4,4" />
+                <path d="M 38 22 L 58 22 M 38 30 L 78 30 M 38 38 L 68 38" stroke="#FF6B35" strokeOpacity="0.8" />
+                <path d="M 38 46 L 50 46" stroke="#FFD166" />
+                <path d="M 30 52 L 15 62 L 125 62 L 110 52" stroke="currentColor" />
+                <path d="M 15 62 C 15 65, 20 66, 25 66 L 115 66 C 120 66, 125 65, 125 62" stroke="currentColor" />
+                <rect x="35" y="55" width="70" height="4" rx="1" stroke="currentColor" strokeOpacity="0.4" />
+                <rect x="58" y="60" width="24" height="4" rx="1" stroke="currentColor" />
+              </svg>
+            </FloatingAsset>
+
+            {/* Asset 6: 'hustleit' Text */}
+            <FloatingAsset initialLeft="44%" initialTop="26%" className="transform -translate-x-1/2 design-asset" isGravityActive={isGravityActive}>
+              <div className="px-5 py-2.5 border border-[#FF6B35]/15 bg-white/70 backdrop-blur-md rounded-2xl filter drop-shadow-[0_0_15px_rgba(255,107,53,0.06)]">
+                <h4
+                  className="font-mono text-xl md:text-2xl font-black uppercase text-transparent tracking-[0.25em]"
+                  style={{ WebkitTextStroke: '1.2px #FF6B35' }}
+                >
+                  hustleit
+                </h4>
+              </div>
+            </FloatingAsset>
+          </div>
+
+          {/* Center Screen: Massive Screen-Spanning Header (z-20, in front of assets) */}
+          <div className="flex-1 flex flex-col justify-center items-center select-none pointer-events-none z-20 my-auto relative">
+            <h1 className="text-[12vw] sm:text-[14vw] md:text-[15vw] font-display font-black leading-none tracking-tighter uppercase text-center text-transparent bg-clip-text bg-gradient-to-b from-[#FF6B35] via-[#7B61FF] to-[#FF8FAB] drop-shadow-[0_0_35px_rgba(255,107,53,0.08)] select-none">
+              PAUL JAMES.
+            </h1>
+            <h2 className="text-xl md:text-3xl font-display font-black tracking-[0.05em] text-[#7B61FF] mt-6 text-center">
+              Founder of DreamSmith
+            </h2>
+          </div>
+        </motion.div>
       </section>
 
       {/* SECTION 2: THE ICEBREAKERS (DYNAMIC ENTRANCE BLUEPRINTS + STATIC CONVERSATION CARDS) */}
       <section 
         ref={sectionRef}
-        className="py-32 relative z-10 border-t border-white/5 overflow-hidden bg-black/[0.15]"
+        className="py-32 relative z-10 border-t border-dark-navy/5 overflow-hidden bg-transparent"
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[320px] bg-gradient-to-tr from-amber-500/5 to-[#00ffcc]/5 rounded-[100%] blur-[120px] -z-10 mix-blend-screen pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[320px] bg-gradient-to-tr from-[#FF6B35]/5 to-[#7B61FF]/5 rounded-[100%] blur-[120px] -z-10 mix-blend-multiply pointer-events-none" />
 
         {/* Huge Aircraft Blueprint - Scroll-linked Flyby */}
         <motion.div
           style={isGravityActive ? { display: 'none' } : { x: planeX }}
           className="absolute left-0 top-[12%] pointer-events-none select-none -z-10"
         >
-          <svg className="w-[300px] md:w-[500px] h-auto text-[#00ffcc] stroke-[1] fill-none filter drop-shadow-[0_0_20px_rgba(0,255,204,0.15)]" viewBox="0 0 500 250">
+          <svg className="w-[300px] md:w-[500px] h-auto text-[#FF6B35] stroke-[1] fill-none filter drop-shadow-[0_0_20px_rgba(255,107,53,0.1)]" viewBox="0 0 500 250">
             {/* Boeing 747 Fuselage Silhouette with Double-Decker Cockpit Hump */}
             <path 
               d="M 40 140 C 40 130, 55 115, 80 105 L 160 105 C 185 105, 195 120, 210 120 L 400 120 C 425 120, 445 130, 460 138 C 445 145, 420 150, 400 150 L 70 150 C 48 150, 40 145, 40 140 Z" 
@@ -313,9 +324,9 @@ export default function App() {
             <line x1="20" y1="140" x2="480" y2="140" stroke="currentColor" strokeDasharray="3,6" strokeOpacity="0.3" />
             <line x1="180" y1="40" x2="180" y2="220" stroke="currentColor" strokeDasharray="3,6" strokeOpacity="0.3" />
             {/* Measurements text */}
-            <text x="30" y="70" className="font-mono text-[9px] fill-[#00ffcc]/40" stroke="none">L: 76.3m (B747-8)</text>
-            <text x="30" y="82" className="font-mono text-[9px] fill-[#00ffcc]/40" stroke="none">SPAN: 68.4m</text>
-            <text x="30" y="55" className="font-mono text-[10px] fill-[#00ffcc] font-bold tracking-wider" stroke="none">BOEING 747-8 SCHEMATIC</text>
+            <text x="30" y="70" className="font-mono text-[9px] fill-[#FF6B35]/50" stroke="none">L: 76.3m (B747-8)</text>
+            <text x="30" y="82" className="font-mono text-[9px] fill-[#FF6B35]/50" stroke="none">SPAN: 68.4m</text>
+            <text x="30" y="55" className="font-mono text-[10px] fill-[#FF6B35] font-bold tracking-wider" stroke="none">BOEING 747-8 SCHEMATIC</text>
             
             <circle cx="210" cy="178" r="5" stroke="currentColor" strokeDasharray="1,1" strokeOpacity="0.5" />
             <circle cx="255" cy="201" r="5" stroke="currentColor" strokeDasharray="1,1" strokeOpacity="0.5" />
@@ -323,13 +334,13 @@ export default function App() {
         </motion.div>
         <div className="max-w-7xl mx-auto px-6 md:px-12 text-center mb-16 relative">
           <motion.div {...fadeIn}>
-            <h2 className="text-[#00ffcc] font-mono text-sm tracking-widest mb-4 font-black uppercase">
+            <h2 className="text-[#7B61FF] font-mono text-sm tracking-widest mb-4 font-black uppercase">
               // START A CONVERSATION
             </h2>
-            <h3 className="text-4xl md:text-6xl font-display font-black tracking-tight text-white mb-6">
+            <h3 className="text-4xl md:text-6xl font-display font-black tracking-tight text-dark-navy mb-6">
               The Icebreakers
             </h3>
-            <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-dark-navy/60 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
               If we haven't met yet, bypassing the awkward small talk is incredibly simple. Just bring up any of these three topics and I'll immediately open up.
             </p>
           </motion.div>
@@ -344,32 +355,32 @@ export default function App() {
               className="w-full h-full"
             >
               <motion.div
-                whileHover={{ y: -8, border: '1px solid rgba(0, 255, 204, 0.4)', boxShadow: '0 0 30px rgba(0, 255, 204, 0.1)' }}
+                whileHover={{ y: -8, border: '1.5px solid rgba(255, 107, 53, 0.3)', boxShadow: '0 15px 35px rgba(255, 107, 53, 0.08)' }}
                 className="flex flex-col gap-6 p-8 glass-panel rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[300px] justify-between text-left h-full"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#00ffcc]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#FF6B35]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="flex flex-col gap-5">
-                  <svg className="w-16 h-10 text-[#00ffcc] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(0,255,204,0.2)]" viewBox="0 0 200 80">
+                  <svg className="w-16 h-10 text-[#FF6B35] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(255,107,53,0.15)] design-asset" viewBox="0 0 200 80">
                     <path d="M 10 55 L 25 50 L 45 42 C 55 38, 65 28, 85 26 C 110 24, 135 24, 155 32 L 175 38 C 185 42, 192 46, 195 55 L 190 60 L 170 60 C 168 48, 148 48, 146 60 L 54 60 C 52 48, 32 48, 30 60 L 10 60 Z" stroke="currentColor" strokeDasharray="4,4" />
                     <circle cx="42" cy="60" r="10" stroke="currentColor" />
                     <circle cx="158" cy="60" r="10" stroke="currentColor" />
-                    <circle cx="158" cy="60" r="3" stroke="#00ffcc" />
+                    <circle cx="158" cy="60" r="3" stroke="#FF6B35" />
                   </svg>
                   <div>
-                    <div className="font-mono text-[9px] text-[#00ffcc] uppercase tracking-widest mb-1.5 font-bold">
+                    <div className="font-mono text-[9px] text-[#FF6B35] uppercase tracking-widest mb-1.5 font-bold">
                       ICEBREAKER_01 // CARS
                     </div>
-                    <h4 className="text-xl font-display font-black text-white mb-2">High-Performance Cars</h4>
-                    <p className="text-zinc-300 text-sm leading-relaxed font-light">
-                      Want to skip the standard introduction? Start discussing track lap times, mechanical differentials, or the carbon fiber weight reduction specs on modern GT3s.
+                    <h4 className="text-xl font-display font-black text-dark-navy mb-2">Car Talk</h4>
+                    <p className="text-dark-navy/60 text-sm leading-relaxed font-light">
+                      Want to skip the standard introduction? I love talking about all cars, from favorite road trip drives to classic station wagons and mechanical differentials.
                     </p>
                   </div>
                 </div>
                 
-                <div className="border-t border-white/5 pt-4 flex items-center justify-between">
-                  <span className="text-[9px] font-mono text-white/30 uppercase">Cognitive Leak</span>
-                  <span className="w-2 h-2 rounded-full bg-[#00ffcc]" />
+                <div className="border-t border-dark-navy/5 pt-4 flex items-center justify-between">
+                  <span className="text-[9px] font-mono text-dark-navy/40 uppercase"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#FF6B35]" />
                 </div>
               </motion.div>
             </motion.div>
@@ -382,31 +393,31 @@ export default function App() {
               className="w-full h-full"
             >
               <motion.div
-                whileHover={{ y: -8, border: '1px solid rgba(0, 255, 204, 0.4)', boxShadow: '0 0 30px rgba(0, 255, 204, 0.1)' }}
+                whileHover={{ y: -8, border: '1.5px solid rgba(123, 97, 255, 0.3)', boxShadow: '0 15px 35px rgba(123, 97, 255, 0.08)' }}
                 className="flex flex-col gap-6 p-8 glass-panel rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[300px] justify-between text-left h-full"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#00ffcc]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#7B61FF]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="flex flex-col gap-5">
-                  <svg className="w-16 h-10 text-[#00ffcc] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(0,255,204,0.2)]" viewBox="0 0 200 80">
+                  <svg className="w-16 h-10 text-[#7B61FF] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(123,97,255,0.15)] design-asset" viewBox="0 0 200 80">
                     <path d="M 20 40 L 40 38 L 70 38 L 105 22 L 120 22 L 110 38 L 160 38 L 175 28 L 182 28 L 178 38 C 185 40, 185 42, 178 44 L 160 44 L 175 54 L 168 54 L 150 44 L 110 44 L 120 60 L 105 60 L 70 44 L 40 44 L 20 40 Z" stroke="currentColor" strokeDasharray="4,4" />
-                    <path d="M 45 38 C 50 30, 60 30, 65 38" stroke="#00ffcc" />
+                    <path d="M 45 38 C 50 30, 60 30, 65 38" stroke="#7B61FF" />
                     <circle cx="55" cy="46" r="3" stroke="currentColor" />
                   </svg>
                   <div>
-                    <div className="font-mono text-[9px] text-[#00ffcc] uppercase tracking-widest mb-1.5 font-bold">
+                    <div className="font-mono text-[9px] text-[#7B61FF] uppercase tracking-widest mb-1.5 font-bold">
                       ICEBREAKER_02 // AIRCRAFT
                     </div>
-                    <h4 className="text-xl font-display font-black text-white mb-2">Aircraft Spotting</h4>
-                    <p className="text-zinc-300 text-sm leading-relaxed font-light">
-                      Mention a Boeing 777-300ER or a rare registration prefix, and I will completely drop whatever critical system deployment task I am doing to analyze its flight path.
+                    <h4 className="text-xl font-display font-black text-dark-navy mb-2">Aircraft Spotting</h4>
+                    <p className="text-dark-navy/60 text-sm leading-relaxed font-light">
+                      I just drop whatever I'm up to and watch them land. Bring up an Airbus A350 or a Boeing 777-300ER, and I'll talk for hours.
                     </p>
                   </div>
                 </div>
                 
-                <div className="border-t border-white/5 pt-4 flex items-center justify-between">
-                  <span className="text-[9px] font-mono text-white/30 uppercase">Cognitive Leak</span>
-                  <span className="w-2 h-2 rounded-full bg-[#00ffcc]" />
+                <div className="border-t border-dark-navy/5 pt-4 flex items-center justify-between">
+                  <span className="text-[9px] font-mono text-dark-navy/40 uppercase"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#7B61FF]" />
                 </div>
               </motion.div>
             </motion.div>
@@ -419,38 +430,38 @@ export default function App() {
               className="w-full h-full"
             >
               <motion.div
-                whileHover={{ y: -8, border: '1px solid rgba(0, 255, 204, 0.4)', boxShadow: '0 0 30px rgba(0, 255, 204, 0.1)' }}
+                whileHover={{ y: -8, border: '1.5px solid rgba(255, 209, 102, 0.4)', boxShadow: '0 15px 35px rgba(255, 209, 102, 0.08)' }}
                 className="flex flex-col gap-6 p-8 glass-panel rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[300px] justify-between text-left h-full"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#00ffcc]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#FFD166]/5 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="flex flex-col gap-5">
-                  <svg className="w-16 h-10 text-[#00ffcc] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(0,255,204,0.2)]" viewBox="0 0 200 80">
+                  <svg className="w-16 h-10 text-[#FFD166] stroke-[1.5] fill-none filter drop-shadow-[0_0_8px_rgba(255,209,102,0.15)] design-asset" viewBox="0 0 200 80">
                     <circle cx="30" cy="40" r="6" stroke="currentColor" />
                     <circle cx="80" cy="20" r="6" stroke="currentColor" />
                     <circle cx="80" cy="60" r="6" stroke="currentColor" />
                     <circle cx="130" cy="20" r="6" stroke="currentColor" />
                     <circle cx="130" cy="60" r="6" stroke="currentColor" />
-                    <circle cx="170" cy="40" r="6" stroke="#00ffcc" />
+                    <circle cx="170" cy="40" r="6" stroke="#FFD166" />
                     <line x1="36" y1="38" x2="74" y2="22" stroke="currentColor" strokeDasharray="3,3" />
                     <line x1="36" y1="42" x2="74" y2="58" stroke="currentColor" strokeDasharray="3,3" />
                     <line x1="86" y1="20" x2="124" y2="20" stroke="currentColor" />
                     <line x1="86" y1="60" x2="124" y2="60" stroke="currentColor" />
                   </svg>
                   <div>
-                    <div className="font-mono text-[9px] text-[#00ffcc] uppercase tracking-widest mb-1.5 font-bold">
+                    <div className="font-mono text-[9px] text-[#FFD166] uppercase tracking-widest mb-1.5 font-bold">
                       ICEBREAKER_03 // MACHINE_LEARNING
                     </div>
-                    <h4 className="text-xl font-display font-black text-white mb-2">AI & Machine Learning</h4>
-                    <p className="text-zinc-300 text-sm leading-relaxed font-light">
+                    <h4 className="text-xl font-display font-black text-dark-navy mb-2">AI & Machine Learning</h4>
+                    <p className="text-dark-navy/60 text-sm leading-relaxed font-light">
                       Ask me about model weight collapse, training losses of multi-billion parameter networks, or whether gradient descent is just premium guessing. I will talk for hours.
                     </p>
                   </div>
                 </div>
                 
-                <div className="border-t border-white/5 pt-4 flex items-center justify-between">
-                  <span className="text-[9px] font-mono text-white/30 uppercase">Cognitive Leak</span>
-                  <span className="w-2 h-2 rounded-full bg-[#00ffcc]" />
+                <div className="border-t border-dark-navy/5 pt-4 flex items-center justify-between">
+                  <span className="text-[9px] font-mono text-dark-navy/40 uppercase"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#FFD166]" />
                 </div>
               </motion.div>
             </motion.div>
@@ -459,33 +470,38 @@ export default function App() {
       </section>
 
       {/* SECTION 3: THE PROBLEM SOLVER */}
-      <ProblemSolverBlock />
+      <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING PROBLEM SOLVER INTERACTIVE" />}>
+        <ProblemSolverBlock />
+      </React.Suspense>
 
       {/* SECTION 4: OPERATING CAPABILITIES (SCROLL-DRIVEN CARD TABLE) */}
-      <CardTableCapabilities />
+      <React.Suspense fallback={<TechSkeleton height="500px" label="DEALING CAPABILITIES INTERFACE" />}>
+        <CardTableCapabilities isGravityActive={isGravityActive} />
+      </React.Suspense>
 
       {/* SECTION 5: THE TIMELINE (CURVED S-CURVE PATH) */}
-      <EvolutionPath />
+      <React.Suspense fallback={<TechSkeleton height="600px" label="ASSEMBLING EVOLUTION GRAPH TIMELINE" />}>
+        <EvolutionPath />
+      </React.Suspense>
 
       {/* SECTION 6: AI ENGINEER (GRAND FINALE) */}
-      <section className="py-40 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-[#050505] to-[#02100d] relative overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGZmY2MiIHN0cm9rZS1vcGFjaXR5PSIwLjA0Ii8+Cjwvc3ZnPg==')] opacity-30 mix-blend-screen pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#00ffcc]/10 rounded-[100%] blur-[120px] pointer-events-none" />
+      <section className="py-40 px-6 md:px-12 lg:px-24 bg-transparent relative overflow-hidden border-t border-dark-navy/5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiM3QjYxRkYiIHN0cm9rZS1vcGFjaXR5PSIwLjA0Ii8+Cjwvc3ZnPg==')] opacity-30 mix-blend-multiply pointer-events-none" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#FF6B35]/5 rounded-[100%] blur-[120px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div {...fadeInUp} className="mb-20 text-center md:text-left">
-            <h2 className="text-[#00ffcc] font-mono text-sm tracking-widest mb-4 font-black uppercase">
+            <h2 className="text-[#7B61FF] font-mono text-sm tracking-widest mb-4 font-black uppercase">
               // EXPERIMENTAL LABS
             </h2>
-            <h3 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-white mb-6">
+            <h3 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-dark-navy mb-6">
               Oh, and by the way...
             </h3>
-            <h4 className="text-4xl md:text-7xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00ffcc] to-indigo-400 drop-shadow-[0_0_30px_rgba(0,255,204,0.3)]">
+            <h4 className="text-4xl md:text-7xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B35] to-[#7B61FF] drop-shadow-[0_0_30px_rgba(255,107,53,0.15)] pb-3 leading-tight">
               I'm an AI Engineer.
             </h4>
-            <p className="text-zinc-400 text-lg md:text-xl mt-6 max-w-2xl font-light">
-              Because standard logic variables were too straightforward, I also teach models how to
-              synthesize intelligence and process high-dimensional matrices.
+            <p className="text-dark-navy/60 text-lg md:text-xl mt-6 max-w-2xl font-light">
+              I teach machines to think.
             </p>
           </motion.div>
 
@@ -496,79 +512,79 @@ export default function App() {
             viewport={{ once: true, margin: '-100px' }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8"
           >
-            {/* Phineas AI */}
+            {/* Interactive AI Avatar */}
             <motion.div
               variants={fadeItem}
-              className="glass-panel p-10 rounded-3xl border-white/5 hover:border-[#00ffcc]/40 hover:bg-[#00ffcc]/5 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between"
+              className="glass-panel p-10 rounded-3xl border-dark-navy/5 hover:border-[#FF6B35]/40 hover:bg-[#FF6B35]/[0.02] transition-all duration-500 group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md text-left"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00ffcc]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 text-left">
-                <h4 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-[#00ffcc] transition-colors">
-                  Phineas AI
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B35]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <h4 className="text-2xl font-display font-bold mb-3 text-dark-navy group-hover:text-[#FF6B35] transition-colors">
+                  Interactive AI Avatar
                 </h4>
-                <p className="text-zinc-400 text-base leading-relaxed font-light mb-6">
-                  LLaMA3-70B + Whisper. Award-winning lecture transcription.
+                <p className="text-dark-navy/60 text-base leading-relaxed font-light mb-6">
+                  Real-time video synthesis combining RAG, chunked TTS, pose conditioning, and autoregressive AAPT (Diffusion Transformer) decoding.
                 </p>
               </div>
-              <span className="font-mono text-[9px] text-[#00ffcc]/60 tracking-wider font-bold">
-                LLAMA3 // WHISPER // CONTEXT_ENGINE
+              <span className="font-mono text-[9px] text-[#FF6B35]/80 tracking-wider font-bold">
+                RAG // DIT // VAE // FASTAPI // WEBRTC
               </span>
             </motion.div>
 
             {/* Visionary Model */}
             <motion.div
               variants={fadeItem}
-              className="glass-panel p-10 rounded-3xl border-white/5 hover:border-[#00ffcc]/40 hover:bg-[#00ffcc]/5 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between"
+              className="glass-panel p-10 rounded-3xl border-dark-navy/5 hover:border-[#7B61FF]/40 hover:bg-[#7B61FF]/[0.02] transition-all duration-500 group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md text-left"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00ffcc]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 text-left">
-                <h4 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-[#00ffcc] transition-colors">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#7B61FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <h4 className="text-2xl font-display font-bold mb-3 text-dark-navy group-hover:text-[#7B61FF] transition-colors">
                   Visionary Model
                 </h4>
-                <p className="text-zinc-400 text-base leading-relaxed font-light mb-6">
-                  Neural ODEs + Transformers. Forecasting the Indian economy using 36 critical indicators.
+                <p className="text-dark-navy/60 text-base leading-relaxed font-light mb-6">
+                  Predicting economic conditions based on Neural ODEs using 36 key indicators, combined with multi-agent Optuna guidelines.
                 </p>
               </div>
-              <span className="font-mono text-[9px] text-[#00ffcc]/60 tracking-wider font-bold">
-                NEURAL_ODES // INFORMER // STATS
+              <span className="font-mono text-[9px] text-[#7B61FF]/80 tracking-wider font-bold">
+                NEURAL_ODES // MULTI-AGENT // OPTUNA
               </span>
             </motion.div>
 
-            {/* Medical Imaging */}
+            {/* Cross-Modality Brain Imaging */}
             <motion.div
               variants={fadeItem}
-              className="glass-panel p-10 rounded-3xl border-white/5 hover:border-[#00ffcc]/40 hover:bg-[#00ffcc]/5 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between"
+              className="glass-panel p-10 rounded-3xl border-dark-navy/5 hover:border-[#00C896]/40 hover:bg-[#00C896]/[0.02] transition-all duration-500 group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md text-left"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00ffcc]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 text-left">
-                <h4 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-[#00ffcc] transition-colors">
-                  Medical Imaging
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00C896]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <h4 className="text-2xl font-display font-bold mb-3 text-dark-navy group-hover:text-[#00C896] transition-colors">
+                  Cross-Modality Brain Imaging
                 </h4>
-                <p className="text-zinc-400 text-base leading-relaxed font-light mb-6">
-                  CycleGANs + U-Nets. Synthesizing PET scans from CT images. Teaching machines to see inside us.
+                <p className="text-dark-navy/60 text-base leading-relaxed font-light mb-6">
+                  CycleGAN framework with dual U-Net generators to synthesize PET scans from CT images (SSIM: 0.922, MAE: 0.012).
                 </p>
               </div>
-              <span className="font-mono text-[9px] text-[#00ffcc]/60 tracking-wider font-bold">
-                CYCLEGANS // U-NETS // SYNTHESIS
+              <span className="font-mono text-[9px] text-[#00C896]/80 tracking-wider font-bold">
+                CYCLEGAN // U-NET // MATLAB
               </span>
             </motion.div>
 
-            {/* Fake News AI */}
+            {/* Age Estimation AI Model */}
             <motion.div
               variants={fadeItem}
-              className="glass-panel p-10 rounded-3xl border-white/5 hover:border-[#00ffcc]/40 hover:bg-[#00ffcc]/5 transition-all duration-500 group relative overflow-hidden flex flex-col justify-between"
+              className="glass-panel p-10 rounded-3xl border-dark-navy/5 hover:border-[#FFD166]/60 hover:bg-[#FFD166]/[0.02] transition-all duration-500 group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md text-left"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00ffcc]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 text-left">
-                <h4 className="text-2xl font-display font-bold mb-3 text-white group-hover:text-[#00ffcc] transition-colors">
-                  Fake News AI
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD166]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <h4 className="text-2xl font-display font-bold mb-3 text-dark-navy group-hover:text-[#FFD166] transition-colors">
+                  Age Estimation AI Model
                 </h4>
-                <p className="text-zinc-400 text-base leading-relaxed font-light mb-6">
-                  Fine-tuned BERT LLM. Multi-agent system hunting down political bias.
+                <p className="text-dark-navy/60 text-base leading-relaxed font-light mb-6">
+                  Hybrid classification-regression ResNet-18 model with SE Blocks attaining an F1 score of 0.783 for precise age detection.
                 </p>
               </div>
-              <span className="font-mono text-[9px] text-[#00ffcc]/60 tracking-wider font-bold">
-                BERT // MULTI_AGENT // CLASSIFICATION
+              <span className="font-mono text-[9px] text-[#FFD166]/80 tracking-wider font-bold">
+                RESNET-18 // SE_BLOCKS // CLASSIFICATION
               </span>
             </motion.div>
           </motion.div>
@@ -577,40 +593,40 @@ export default function App() {
 
       {/* FOOTER */}
       <footer 
-        className="py-24 px-6 md:px-12 border-t border-white/10 bg-[#020504] relative transition-all duration-700"
+        className="py-24 px-6 md:px-12 border-t border-dark-navy/5 bg-transparent relative transition-all duration-700"
       >
         <div className="max-w-7xl mx-auto flex flex-col items-center relative z-10">
           {/* Deliberate Break Playful Tagline */}
-          <p className="text-zinc-500 font-mono text-[10px] tracking-[0.3em] uppercase mb-12 text-center select-none drop-shadow-[0_0_6px_rgba(0,255,204,0.15)] animate-pulse">
+          <p className="text-dark-navy/40 font-mono text-[10px] tracking-[0.3em] uppercase mb-12 text-center select-none animate-pulse">
             // IF THE SITE BREAKS, IT'S DELIBERATE.
           </p>
 
           {/* Core Footer Info */}
-          <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 pt-8">
+          <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 border-t border-dark-navy/5 pt-8">
             <div className="flex flex-col gap-2 text-center md:text-left">
-              <h4 className="text-white font-display font-black text-xl tracking-tighter">
+              <h4 className="text-dark-navy font-display font-black text-xl tracking-tighter">
                 PAUL JAMES
               </h4>
-              <p className="text-white/30 font-mono text-xs tracking-wider">
+              <p className="text-dark-navy/40 font-mono text-xs tracking-wider">
                 © {new Date().getFullYear()} PAUL JAMES. CREATIVE DEVELOPER & AI ENGINEER.
               </p>
             </div>
             <div className="flex gap-8 font-mono">
               <a
                 href="#"
-                className="text-white/30 hover:text-[#00ffcc] transition-colors text-xs tracking-widest"
+                className="text-dark-navy/40 hover:text-[#FF6B35] transition-colors text-xs tracking-widest"
               >
                 GITHUB
               </a>
               <a
                 href="#"
-                className="text-white/30 hover:text-[#00ffcc] transition-colors text-xs tracking-widest"
+                className="text-dark-navy/40 hover:text-[#7B61FF] transition-colors text-xs tracking-widest"
               >
                 LINKEDIN
               </a>
               <a
                 href="#"
-                className="text-white/30 hover:text-[#00ffcc] transition-colors text-xs tracking-widest"
+                className="text-dark-navy/40 hover:text-[#FF8FAB] transition-colors text-xs tracking-widest"
               >
                 TWITTER
               </a>
@@ -618,11 +634,13 @@ export default function App() {
           </div>
         </div>
       </footer>
-      <GravitySandbox 
-        isGravityActive={isGravityActive} 
-        setIsGravityActive={setIsGravityActive} 
-        onResetComplete={() => setIsGravityResetting(false)}
-      />
+      <React.Suspense fallback={null}>
+        <GravitySandbox 
+          isGravityActive={isGravityActive} 
+          setIsGravityActive={setIsGravityActive} 
+          onResetComplete={() => setResetCounter(prev => prev + 1)}
+        />
+      </React.Suspense>
     </main>
   );
 }

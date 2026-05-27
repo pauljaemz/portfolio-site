@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
-export default function FloatingAsset({ children, initialLeft, initialTop, className, isGravityActive }) {
+const FloatingAsset = React.memo(function FloatingAsset({ children, initialLeft, initialTop, className, isGravityActive }) {
   const ref = useRef(null);
 
   // Baseline coordinates representing mouse repulsion displacement offsets
@@ -56,19 +56,24 @@ export default function FloatingAsset({ children, initialLeft, initialTop, class
   return (
     <motion.div
       ref={ref}
-      initial={{ left: '50%', top: '50%', opacity: 0, scale: 0.4 }}
-      animate={isGravityActive ? {} : {
+      initial={{
+        left: "50%",
+        top: "50%",
+        scale: 0.15,
+        opacity: 0
+      }}
+      animate={{
         left: initialLeft,
         top: initialTop,
-        opacity: 1,
         scale: 1,
+        opacity: 1
       }}
       transition={{
-        type: 'spring',
-        damping: 18,
-        stiffness: 75,
+        type: "spring",
+        stiffness: 55,
+        damping: 13,
         mass: 1.1,
-        delay: Math.random() * 0.18, // Organically staggered delay
+        delay: 0.15 + Math.random() * 0.3
       }}
       style={isGravityActive ? {
         left: initialLeft,
@@ -76,7 +81,8 @@ export default function FloatingAsset({ children, initialLeft, initialTop, class
       } : {
         x,
         y,
-        // left and top are handled by the animate prop for spring entrance
+        left: initialLeft,
+        top: initialTop,
       }}
       className={`absolute z-10 select-none pointer-events-none ${className}`}
     >
@@ -84,4 +90,6 @@ export default function FloatingAsset({ children, initialLeft, initialTop, class
       <div className="animate-float">{children}</div>
     </motion.div>
   );
-}
+});
+
+export default FloatingAsset;

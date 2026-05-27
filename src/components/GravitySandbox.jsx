@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function GravitySandbox({ isGravityActive, setIsGravityActive }) {
+export default function GravitySandbox({ isGravityActive, setIsGravityActive, onResetComplete }) {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const assetParticlesRef = useRef([]);
@@ -44,21 +44,66 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
 
   // Handle scroll events: updates scroll position and redraws static frame immediately when frozen
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      lastScrollY.current = currentScrollY;
+    let ticking = false;
 
-      // If simulation is frozen, redraw the static frame on scroll to prevent sticking
-      if (isFrozenRef.current && canvasRef.current) {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        drawStaticFrame(ctx, canvas);
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          lastScrollY.current = currentScrollY;
+
+          // If simulation is frozen, redraw the static frame on scroll to prevent sticking
+          if (isFrozenRef.current && canvasRef.current) {
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            drawStaticFrame(ctx, canvas);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const instantReset = () => {
+    // Clear canvas instantly
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+    
+    // Restore all target text nodes in the DOM to their original stylesheet parameters
+    targetElementsRef.current.forEach(({ parent }) => {
+      if (parent) {
+        parent.style.visibility = parent.dataset.physicsOrigVis === 'visible' ? '' : parent.dataset.physicsOrigVis;
+        parent.style.opacity = parent.dataset.physicsOrigOpacity || '';
+        parent.style.transition = parent.dataset.physicsOrigTransition || '';
+      }
+    });
+
+    // Restore original transform positions for design assets
+    assetParticlesRef.current.forEach(({ el }) => {
+      if (el) {
+        el.style.transform = el.dataset.origTransform || '';
+      }
+    });
+
+    // Clear particle arrays to freeze loop
+    particlesRef.current = [];
+    assetParticlesRef.current = [];
+
+    // Reset loop states
+    setIsActive(false);
+    isFrozenRef.current = false;
+
+    // Trigger parent callback to play high-end custom entrance transitions (including screen shake)
+    if (onResetComplete) {
+      onResetComplete();
+    }
+  };
 
   // Trigger physics setup on activation or deactivation
   useEffect(() => {
@@ -68,8 +113,8 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
       setIsActive(true);
       initParticles();
     } else if (isActive) {
-      // Unfreeze when deactivating so return snap snaps back!
-      isFrozenRef.current = false;
+      // Instantly reset the website elements instead of rising back from below
+      instantReset();
     }
   }, [isGravityActive]);
 
@@ -137,13 +182,13 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
       const originalText = textNode.textContent;
       
       // Store original visibility, opacity, and transition states to restore cleanly
-      if (!parent.dataset.physicsOrigVis) {
+      if (parent.dataset.physicsOrigVis === undefined) {
         parent.dataset.physicsOrigVis = parent.style.visibility || 'visible';
       }
-      if (!parent.dataset.physicsOrigOpacity) {
+      if (parent.dataset.physicsOrigOpacity === undefined) {
         parent.dataset.physicsOrigOpacity = parent.style.opacity || '';
       }
-      if (!parent.dataset.physicsOrigTransition) {
+      if (parent.dataset.physicsOrigTransition === undefined) {
         parent.dataset.physicsOrigTransition = parent.style.transition || '';
       }
       
@@ -298,7 +343,7 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
     const scrollY = window.scrollY;
     
     // Draw all text characters flat on the absolute bottom of the document (footer area)
-    const floorY = document.documentElement.scrollHeight - 30;
+    const floorY = document.documentElement.scrollHeight - 5;
     particlesRef.current.forEach(p => {
       p.y = floorY;
       const drawY = p.y - scrollY;
@@ -334,16 +379,16 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
     if (isGravityActive && mx !== -1000) {
       ctx.beginPath();
       const gradient = ctx.createRadialGradient(mx, my, 10, mx, my, 140);
-      gradient.addColorStop(0, 'rgba(0, 255, 204, 0.08)');
-      gradient.addColorStop(0.5, 'rgba(0, 255, 204, 0.02)');
-      gradient.addColorStop(1, 'rgba(0, 255, 204, 0)');
+      gradient.addColorStop(0, 'rgba(123, 97, 255, 0.1)');
+      gradient.addColorStop(0.5, 'rgba(123, 97, 255, 0.03)');
+      gradient.addColorStop(1, 'rgba(123, 97, 255, 0)');
       ctx.fillStyle = gradient;
       ctx.arc(mx, my, 140, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(mx, my, 140, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0, 255, 204, 0.15)';
+      ctx.strokeStyle = 'rgba(123, 97, 255, 0.18)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 6]);
       ctx.stroke();
@@ -351,7 +396,7 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
     }
 
     // Dynamic Floor: bottom of the absolute document (the footer area)
-    const floorY = document.documentElement.scrollHeight - 30;
+    const floorY = document.documentElement.scrollHeight - 5;
     let allReturned = true;
 
     // Convert mouse coordinate Y to document coordinates for physics calculation
@@ -544,26 +589,24 @@ export default function GravitySandbox({ isGravityActive, setIsGravityActive }) 
     // Clean up simulation when deactivation snaps are completed
     if (!isGravityActive && allReturned) {
       targetElementsRef.current.forEach(({ parent }) => {
-        parent.style.visibility = parent.dataset.physicsOrigVis === 'visible' ? '' : parent.dataset.physicsOrigVis;
-        // Trigger a force reflow to make the transition work
-        void parent.offsetHeight;
-        parent.style.opacity = parent.dataset.physicsOrigOpacity === '' ? '1' : parent.dataset.physicsOrigOpacity;
-        
-        // Restore original stylesheet properties after transition finishes to keep DOM clean
-        setTimeout(() => {
-          if (parent && parent.style) {
-            parent.style.transition = parent.dataset.physicsOrigTransition || '';
-            parent.style.opacity = parent.dataset.physicsOrigOpacity || '';
-          }
-        }, 600);
+        if (parent) {
+          parent.style.visibility = parent.dataset.physicsOrigVis === 'visible' ? '' : parent.dataset.physicsOrigVis;
+          parent.style.opacity = parent.dataset.physicsOrigOpacity || '';
+          parent.style.transition = parent.dataset.physicsOrigTransition || '';
+        }
       });
       assetParticlesRef.current.forEach(({ el }) => {
-        el.style.transform = el.dataset.origTransform;
+        if (el) {
+          el.style.transform = el.dataset.origTransform || '';
+        }
       });
       particlesRef.current = [];
       assetParticlesRef.current = [];
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       setIsActive(false);
+      if (onResetComplete) {
+        onResetComplete();
+      }
     }
   };
 
