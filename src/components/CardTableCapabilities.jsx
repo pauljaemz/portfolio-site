@@ -62,33 +62,18 @@ export default function CardTableCapabilities({ isGravityActive }) {
     setFocusedMobileCard(null);
   };
 
-  return (
-    <section 
-      ref={containerRef} 
-      className="pt-24 pb-12 relative bg-transparent border-t border-dark-navy/5 overflow-hidden"
-      onClick={handleTabletopClick}
-    >
-      {/* Table Felt Backdrops & Blueprint Grid Overlay */}
-      <div className="absolute inset-0 tech-grid opacity-30 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[#FF6B35]/[0.03] rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#7B61FF]/[0.02] rounded-full blur-[120px] pointer-events-none" />
-
-      {/* Main Table Container */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 flex flex-col gap-16 relative z-20">
+  const renderTableContent = (colorClass) => {
+    return (
+      <div className={`max-w-7xl mx-auto px-6 md:px-12 lg:px-24 flex flex-col gap-16 relative z-20 ${colorClass}`}>
         
         {/* Section Header */}
-        <div className="w-full text-left flex items-center justify-between pointer-events-none select-none">
-          <div>
-            <h2 className="text-[#FF6B35] font-mono text-xs tracking-widest font-black uppercase mb-2">
-              // OPERATING_CAPABILITIES // DEALT_HAND
-            </h2>
-            <h3 className="text-4xl md:text-6xl font-display font-black tracking-tighter text-dark-navy">
-              What I actually do.
-            </h3>
-          </div>
-          <span className="hidden md:inline-block font-mono text-[9px] text-dark-navy/20 tracking-widest uppercase">
-            SCROLL_TO_DEAL_CARDS
-          </span>
+        <div className="w-full text-center mb-12 pointer-events-none select-none flex flex-col items-center">
+          <h2 className="font-mono text-xs tracking-widest font-black uppercase mb-3">
+            // OPERATING_CAPABILITIES // DEALT_HAND
+          </h2>
+          <h3 className="text-4xl md:text-6xl font-display font-black tracking-tighter">
+            What I actually do.
+          </h3>
         </div>
 
         {/* ========================================================
@@ -99,30 +84,30 @@ export default function CardTableCapabilities({ isGravityActive }) {
           {/* Card 1: Freelancer / Web Dev */}
           <motion.div
             style={{ x: x1, y: y1, rotate: rotate1, scale: scale1, opacity: opacity1 }}
-            className="col-span-6 glass-panel p-8 rounded-3xl border-dark-navy/5 hover:border-[#FF6B35]/40 hover:bg-[#FF6B35]/[0.02] transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative shadow-lg overflow-hidden"
+            className="col-span-6 glass-panel p-8 rounded-3xl border-white hover:bg-white/5 transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative text-inherit"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-2xl font-display font-black tracking-tight text-dark-navy group-hover:text-[#FF6B35] transition-colors">
-                  Freelancer / Web Dev<span className="text-[#FF6B35] font-mono select-none ml-1 animate-pulse font-bold">_</span>
+                <h4 className="text-2xl font-display font-black tracking-tight">
+                  Freelancer / Web Dev<span className="font-mono select-none ml-1 animate-pulse font-bold">_</span>
                 </h4>
-                <svg className="w-8 h-8 text-[#FF6B35] stroke-[1.2] fill-none filter drop-shadow-[0_0_8px_rgba(255,107,53,0.15)] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 stroke-[1.2] fill-none" viewBox="0 0 24 24">
                   <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" />
                   <path d="M 6 8 L 10 12 L 6 16" stroke="currentColor" />
-                  <line x1="12" y1="16" x2="18" y2="16" stroke="#FF6B35" strokeWidth="1.8" />
+                  <line x1="12" y1="16" x2="18" y2="16" stroke="currentColor" strokeWidth="1.8" />
                 </svg>
               </div>
-              <p className="text-dark-navy/60 text-sm leading-relaxed font-light mb-6">
+              <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
                 Turning caffeine and vague "make it pop" requests into functional architecture.
               </p>
             </div>
-            <div className="pt-4 border-t border-dark-navy/5 flex justify-between items-center">
-              <span className="font-mono text-[10px] text-[#FF6B35] font-bold">check out</span>
+            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="font-mono text-[10px] font-bold">check out</span>
               <a
                 href="https://www.softleaf.co"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-full border border-dark-navy/10 bg-dark-navy/5 font-mono text-[10px] text-dark-navy/60 hover:bg-[#FF6B35]/10 hover:text-[#FF6B35] hover:border-[#FF6B35]/30 transition-all duration-300 z-10"
+                className="px-3.5 py-1.5 rounded-full border border-current bg-transparent font-mono text-[10px] hover:bg-white/10 transition-all duration-300 z-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 WWW.SOFTLEAF.CO →
@@ -133,42 +118,41 @@ export default function CardTableCapabilities({ isGravityActive }) {
           {/* Card 2: Backend Developer */}
           <motion.div
             style={{ x: x2, y: y2, rotate: rotate2, scale: scale2, opacity: opacity2 }}
-            className="col-span-6 glass-panel p-8 rounded-3xl border-dark-navy/5 hover:border-[#7B61FF]/40 hover:bg-[#7B61FF]/[0.02] transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative shadow-lg overflow-hidden"
+            className="col-span-6 glass-panel p-8 rounded-3xl border-white hover:bg-white/5 transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative text-inherit"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-2xl font-display font-black tracking-tight text-dark-navy group-hover:text-[#7B61FF] transition-colors">
+                <h4 className="text-2xl font-display font-black tracking-tight">
                   Backend Developer
                 </h4>
                 <div className="flex gap-1.5 items-center">
-                  <svg className="w-8 h-8 text-[#7B61FF] stroke-[1.2] fill-none filter drop-shadow-[0_0_8px_rgba(123,97,255,0.15)] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 stroke-[1.2] fill-none" viewBox="0 0 24 24">
                     <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" />
                     <path d="M 4 6 L 4 12 A 8 3 0 0 0 20 12 L 20 6" stroke="currentColor" />
                     <path d="M 4 12 L 4 18 A 8 3 0 0 0 20 18 L 20 12" stroke="currentColor" />
-                    <line x1="12" y1="9" x2="12" y2="15" stroke="#7B61FF" strokeDasharray="2,2" />
+                    <line x1="12" y1="9" x2="12" y2="15" stroke="currentColor" strokeDasharray="2,2" />
                   </svg>
                 </div>
               </div>
-              <p className="text-dark-navy/60 text-sm leading-relaxed font-light mb-6">
+              <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
                 I designed and built the backend of HustleIt systems. It's production stable, fast, and engineered to scale seamlessly.
               </p>
             </div>
             
-            {/* Sequential database led dots anim */}
             <div className="absolute right-6 bottom-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-              <svg className="w-10 h-10 text-[#7B61FF]/45" viewBox="0 0 40 40" fill="none">
+              <svg className="w-10 h-10 text-current opacity-50" viewBox="0 0 40 40" fill="none">
                 <path d="M 5 10 C 5 7, 35 7, 35 10 L 35 15 C 35 18, 5 18, 5 15 Z" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M 5 20 C 5 17, 35 17, 35 20 L 35 25 C 35 28, 5 28, 5 25 Z" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M 5 30 C 5 27, 35 27, 35 30 L 35 35 C 35 38, 5 38, 5 35 Z" stroke="currentColor" strokeWidth="1.2" />
-                <circle cx="9" cy="12.5" r="1.5" fill="#FF6B35" className="animate-pulse" style={{ animationDuration: '0.8s' }} />
-                <circle cx="9" cy="22.5" r="1.5" fill="#7B61FF" className="animate-pulse" style={{ animationDuration: '0.8s', animationDelay: '0.25s' }} />
-                <circle cx="9" cy="32.5" r="1.5" fill="#00C896" className="animate-pulse" style={{ animationDuration: '0.8s', animationDelay: '0.5s' }} />
+                <circle cx="9" cy="12.5" r="1.5" fill="currentColor" className="animate-pulse" style={{ animationDuration: '0.8s' }} />
+                <circle cx="9" cy="22.5" r="1.5" fill="currentColor" className="animate-pulse" style={{ animationDuration: '0.8s', animationDelay: '0.25s' }} />
+                <circle cx="9" cy="32.5" r="1.5" fill="currentColor" className="animate-pulse" style={{ animationDuration: '0.8s', animationDelay: '0.5s' }} />
               </svg>
             </div>
 
-            <div className="pt-4 border-t border-dark-navy/5 flex justify-between items-center">
-              <span className="font-mono text-[10px] text-[#7B61FF] font-bold">Node, Rust & Database</span>
-              <span className="font-mono text-[9px] text-[#7B61FF] bg-[#7B61FF]/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="font-mono text-[10px] font-bold">Node, Rust & Database</span>
+              <span className="font-mono text-[9px] bg-white/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
                 PRODUCTION_STABLE
               </span>
             </div>
@@ -177,40 +161,39 @@ export default function CardTableCapabilities({ isGravityActive }) {
           {/* Card 3: Roller Skating */}
           <motion.div
             style={{ x: x3, y: y3, rotate: rotate3, scale: scale3, opacity: opacity3 }}
-            className="col-span-6 glass-panel p-8 rounded-3xl border-dark-navy/5 hover:border-[#FFD166]/60 hover:bg-[#FFD166]/[0.02] transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative shadow-lg overflow-hidden"
+            className="col-span-6 glass-panel p-8 rounded-3xl border-white hover:bg-white/5 transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative text-inherit"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-2xl font-display font-black tracking-tight text-dark-navy group-hover:text-[#FFD166] transition-colors">
+                <h4 className="text-2xl font-display font-black tracking-tight">
                   Roller Skating
                 </h4>
-                <svg className="w-8 h-8 text-[#FFD166] stroke-[1.2] fill-none filter drop-shadow-[0_0_8px_rgba(255,209,102,0.2)] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 stroke-[1.2] fill-none" viewBox="0 0 24 24">
                   <circle cx="6" cy="18" r="3" stroke="currentColor" />
                   <circle cx="12" cy="18" r="3" stroke="currentColor" />
                   <circle cx="18" cy="18" r="3" stroke="currentColor" />
                   <path d="M 3 15 L 21 15 L 18 10 L 6 10 Z" stroke="currentColor" />
-                  <path d="M 6 10 L 8 4 L 14 4 L 14 10" stroke="#FFD166" />
+                  <path d="M 6 10 L 8 4 L 14 4 L 14 10" stroke="currentColor" />
                 </svg>
               </div>
-              <p className="text-dark-navy/60 text-sm leading-relaxed font-light mb-6">
+              <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
                 Speed, balance, and carving high-velocity corners on wheels. Subdistrict 2nd place winner, proving my speed is stable on concrete as well as in production.
               </p>
             </div>
 
-            {/* Rolling inline SVG skate */}
             <div className="absolute bottom-16 left-0 right-0 h-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
               <div className="absolute left-1/4 top-0 animate-skate">
-                <svg className="w-10 h-7 text-[#FFD166] stroke-[1.5] fill-none" viewBox="0 0 24 16">
+                <svg className="w-10 h-7 stroke-[1.5] fill-none" viewBox="0 0 24 16">
                   <path d="M 2 10 L 4 4 C 5 3, 10 3, 11 4 L 12 7 L 16 8 C 18 9, 20 9, 21 11 L 22 12 L 21 13 L 2 13 Z" stroke="currentColor" />
-                  <circle cx="6" cy="14" r="2" stroke="currentColor" fill="#FF6B35" />
-                  <circle cx="16" cy="14" r="2" stroke="currentColor" fill="#FF6B35" />
+                  <circle cx="6" cy="14" r="2" stroke="currentColor" fill="currentColor" />
+                  <circle cx="16" cy="14" r="2" stroke="currentColor" fill="currentColor" />
                 </svg>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-dark-navy/5 flex justify-between items-center">
-              <span className="font-mono text-[10px] text-[#FFD166] font-bold">quad roller skates</span>
-              <span className="font-mono text-[9px] text-[#FFD166] bg-[#FFD166]/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="font-mono text-[10px] font-bold">quad roller skates</span>
+              <span className="font-mono text-[9px] bg-white/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
                 SUBDISTRICT_2ND
               </span>
             </div>
@@ -219,43 +202,42 @@ export default function CardTableCapabilities({ isGravityActive }) {
           {/* Card 4: Music Mixing */}
           <motion.div
             style={{ x: x4, y: y4, rotate: rotate4, scale: scale4, opacity: opacity4 }}
-            className="col-span-6 glass-panel p-8 rounded-3xl border-dark-navy/5 hover:border-[#4CC9F0]/40 hover:bg-[#4CC9F0]/[0.02] transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative shadow-lg overflow-hidden"
+            className="col-span-6 glass-panel p-8 rounded-3xl border-white hover:bg-white/5 transition-all duration-300 group flex flex-col justify-between min-h-[240px] relative text-inherit"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-2xl font-display font-black tracking-tight text-dark-navy group-hover:text-[#4CC9F0] transition-colors">
+                <h4 className="text-2xl font-display font-black tracking-tight">
                   Music Mixing
                 </h4>
-                <svg className="w-8 h-8 text-[#4CC9F0] stroke-[1.2] fill-none filter drop-shadow-[0_0_8px_rgba(76,201,240,0.15)] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 stroke-[1.2] fill-none" viewBox="0 0 24 24">
                   <circle cx="7" cy="12" r="5" stroke="currentColor" />
-                  <circle cx="7" cy="12" r="1.5" stroke="#4CC9F0" />
+                  <circle cx="7" cy="12" r="1.5" stroke="currentColor" />
                   <circle cx="17" cy="12" r="5" stroke="currentColor" />
-                  <circle cx="17" cy="12" r="1.5" stroke="#4CC9F0" />
+                  <circle cx="17" cy="12" r="1.5" stroke="currentColor" />
                   <path d="M 11 6 L 13 6 M 11 18 L 13 18" stroke="currentColor" />
                 </svg>
               </div>
-              <p className="text-dark-navy/60 text-sm leading-relaxed font-light mb-6">
+              <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
                 Layering frequencies and beatmatching. mixing tracks together is just real-time compilation: combining distinct audio signals into a perfect harmony.
               </p>
             </div>
 
-            {/* Spinning pair of DJ disks */}
             <div className="absolute right-6 bottom-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none flex gap-2">
-              <svg className="w-7 h-7 text-[#7B61FF] animate-spin" style={{ animationDuration: '4s' }} viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" fill="#1A1A2E" />
+              <svg className="w-7 h-7 animate-spin" style={{ animationDuration: '4s' }} viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" />
                 <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
-                <circle cx="12" cy="12" r="2.5" stroke="#FF6B35" strokeWidth="1.5" />
+                <circle cx="12" cy="12" r="2.5" fill="currentColor" />
               </svg>
-              <svg className="w-7 h-7 text-[#FF6B35] animate-spin" style={{ animationDuration: '3s' }} viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" fill="#1A1A2E" />
+              <svg className="w-7 h-7 animate-spin" style={{ animationDuration: '3s' }} viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" />
                 <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
-                <circle cx="12" cy="12" r="2.5" stroke="#7B61FF" strokeWidth="1.5" />
+                <circle cx="12" cy="12" r="2.5" fill="currentColor" />
               </svg>
             </div>
 
-            <div className="pt-4 border-t border-dark-navy/5 flex justify-between items-center">
-              <span className="font-mono text-[10px] text-[#4CC9F0] font-bold">VirtualDJ</span>
-              <span className="font-mono text-[9px] text-[#4CC9F0] bg-[#4CC9F0]/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="font-mono text-[10px] font-bold">VirtualDJ</span>
+              <span className="font-mono text-[9px] bg-white/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
                 MIX_ACTIVE
               </span>
             </div>
@@ -264,39 +246,38 @@ export default function CardTableCapabilities({ isGravityActive }) {
           {/* Card 5: Videography */}
           <motion.div
             style={{ x: x5, y: y5, rotate: rotate5, scale: scale5, opacity: opacity5 }}
-            className="col-span-12 glass-panel p-8 rounded-3xl border-dark-navy/5 hover:border-[#00C896]/40 transition-all duration-300 group shadow-xl relative overflow-hidden"
+            className="col-span-12 glass-panel p-8 rounded-3xl border-white hover:bg-white/[0.01] transition-all duration-300 group shadow-xl relative overflow-hidden"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               {/* Left Details */}
-              <div className="lg:col-span-5 text-left flex flex-col justify-between h-full min-h-[180px]">
+              <div className="text-right pr-6 md:pr-12 flex flex-col justify-between h-full min-h-[180px]">
                 <div>
-                  <h4 className="text-3xl font-display font-black tracking-tight text-dark-navy mb-4">
+                  <h4 className="text-3xl font-display font-black tracking-tight mb-4">
                     Videography
                   </h4>
-                  <p className="text-dark-navy/60 text-sm leading-relaxed font-light mb-6">
+                  <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
                     I make reality look significantly better than it actually is. Ugly interfaces physically offend me.
                   </p>
                 </div>
-                <span className="font-mono text-[10px] text-dark-navy/30">
+                <span className="font-mono text-[10px] opacity-40">
                   4K DCI / 60 FPS / Color Grading / CSS Blueprints
                 </span>
               </div>
 
               {/* Right Viewport Screen */}
-              <div className="lg:col-span-7 w-full h-full flex items-center justify-center">
-                <div className="relative w-full aspect-video rounded-2xl z-10 group-hover:shadow-[0_0_40px_rgba(0,200,150,0.1)] transition-shadow duration-500">
-                  <div className="absolute -inset-2 bg-gradient-to-b from-[#00C896]/5 to-transparent blur-[20px] opacity-40 rounded-[2rem] -z-10" />
-                  <div className="w-full h-full bg-[#0a0a0a] rounded-xl border border-dark-navy/10 overflow-hidden relative shadow-2xl flex flex-col">
+              <div className="w-full h-full flex items-center justify-center pl-6 md:pl-12">
+                <div className="relative w-full aspect-video rounded-2xl z-10">
+                  <div className="w-full h-full bg-black rounded-xl border border-white/20 overflow-hidden relative shadow-2xl flex flex-col">
                     {/* Toolbar */}
-                    <div className="h-8 border-b border-dark-navy/10 flex items-center px-3 gap-1.5 bg-white/[0.01] z-20">
+                    <div className="h-8 border-b border-white/10 flex items-center px-3 gap-1.5 bg-white/[0.01] z-20">
                       <div className="w-2 h-2 rounded-full bg-red-500/80" />
                       <div className="w-2 h-2 rounded-full bg-amber-500/80" />
-                      <div className="w-2 h-2 rounded-full bg-[#00C896]" />
-                      <div className="mx-auto font-mono text-[9px] text-dark-navy/30 tracking-widest">
+                      <div className="w-2 h-2 rounded-full bg-green-500/80" />
+                      <div className="mx-auto font-mono text-[9px] text-white/30 tracking-widest">
                         VIEWPORT_01_RAW_REC.mov
                       </div>
                     </div>
-                    {/* Viewport Screen */}
+                    {/* Screen content */}
                     <div className="flex-1 relative flex items-center justify-center overflow-hidden">
                       <video 
                         className="absolute inset-0 w-full h-full object-cover z-0 opacity-70 group-hover:opacity-90 transition-opacity duration-500"
@@ -315,12 +296,12 @@ export default function CardTableCapabilities({ isGravityActive }) {
                       <div className="absolute top-1/2 left-4 right-4 h-[1px] bg-white/10 -translate-y-1/2 pointer-events-none z-10" />
                       <div className="w-16 h-16 border border-white/20 flex items-center justify-center relative z-20 pointer-events-none">
                         <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
-                        <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-[#00C896]" />
-                        <div className="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-[#00C896]" />
-                        <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-[#00C896]" />
-                        <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-[#00C896]" />
+                        <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-white/40" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-white/40" />
+                        <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-white/40" />
+                        <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-white/40" />
                       </div>
-                      <div className="absolute bottom-3 right-4 font-mono text-[8px] text-[#00C896]/90 tracking-widest z-10">16:9 / 4K / 60FPS</div>
+                      <div className="absolute bottom-3 right-4 font-mono text-[8px] text-white/90 tracking-widest z-10">16:9 / 4K / 60FPS</div>
                       <div className="absolute bottom-3 left-4 font-mono text-[8px] text-white/40 tracking-widest z-10">LENS: 35MM / ISO: 400</div>
                       <div className="absolute top-3 right-4 font-mono text-[8px] text-red-500 flex items-center gap-1 tracking-wider z-10">
                         <span className="w-1 h-1 rounded-full bg-red-500 animate-pulse"></span>REC
@@ -331,7 +312,6 @@ export default function CardTableCapabilities({ isGravityActive }) {
               </div>
             </div>
           </motion.div>
-
         </div>
 
         {/* ========================================================
@@ -341,7 +321,6 @@ export default function CardTableCapabilities({ isGravityActive }) {
           className="lg:hidden relative w-full flex items-center justify-center"
           style={{ minHeight: "360px" }}
         >
-          {/* Centered Stacking Card Deck Anchor */}
           <div className="relative w-full max-w-[340px] h-[340px] flex items-center justify-center">
             
             {/* Card 1: Freelancer / Web Dev */}
@@ -351,25 +330,25 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 e.stopPropagation();
                 setFocusedMobileCard(focusedMobileCard === 1 ? null : 1);
               }}
-              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-dark-navy/5 flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
+              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-white flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
                 focusedMobileCard === 1
-                  ? 'z-50 scale-105 border-[#FF6B35]/60 shadow-[0_0_30px_rgba(255,107,53,0.2)]'
+                  ? 'z-50 scale-105 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                   : focusedMobileCard !== null
                   ? 'opacity-20 scale-95 pointer-events-none filter blur-[0.5px] z-10'
                   : 'z-10 translate-x-[-12px] translate-y-[-10px] -rotate-6 hover:translate-y-[-18px]'
               }`}
             >
               <div>
-                <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                <h4 className="text-xl font-display font-black mb-2">
                   Freelancer / Web Dev
                 </h4>
-                <p className="text-dark-navy/60 text-xs leading-relaxed font-light">
+                <p className="opacity-70 text-xs leading-relaxed font-light">
                   Turning caffeine and vague "make it pop" requests into functional architecture.
                 </p>
               </div>
-              <div className="pt-3 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
-                <span className="font-bold text-[#FF6B35]">check out</span>
-                <span className="text-[#FF6B35]">TAP TO ZOOM</span>
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
+                <span className="font-bold">check out</span>
+                <span>TAP TO ZOOM</span>
               </div>
             </motion.div>
 
@@ -380,25 +359,25 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 e.stopPropagation();
                 setFocusedMobileCard(focusedMobileCard === 2 ? null : 2);
               }}
-              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-dark-navy/5 flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
+              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-white flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
                 focusedMobileCard === 2
-                  ? 'z-50 scale-105 border-[#7B61FF]/60 shadow-[0_0_30px_rgba(123,97,255,0.2)]'
+                  ? 'z-50 scale-105 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                   : focusedMobileCard !== null
                   ? 'opacity-20 scale-95 pointer-events-none filter blur-[0.5px] z-10'
                   : 'z-20 translate-x-[-4px] translate-y-[-5px] -rotate-3 hover:translate-y-[-12px]'
               }`}
             >
               <div>
-                <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                <h4 className="text-xl font-display font-black mb-2">
                   Backend Developer
                 </h4>
-                <p className="text-dark-navy/60 text-xs leading-relaxed font-light">
+                <p className="opacity-70 text-xs leading-relaxed font-light">
                   I designed and built the backend of HustleIt systems. It's production stable, fast, and engineered to scale seamlessly.
                 </p>
               </div>
-              <div className="pt-3 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
-                <span className="font-bold text-[#7B61FF]">Node, Rust & Database</span>
-                <span className="text-[#7B61FF]">TAP TO ZOOM</span>
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
+                <span className="font-bold">Node, Rust & Database</span>
+                <span>TAP TO ZOOM</span>
               </div>
             </motion.div>
 
@@ -409,25 +388,25 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 e.stopPropagation();
                 setFocusedMobileCard(focusedMobileCard === 3 ? null : 3);
               }}
-              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-dark-navy/5 flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
+              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-white flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
                 focusedMobileCard === 3
-                  ? 'z-50 scale-105 border-[#FFD166]/60 shadow-[0_0_30px_rgba(255,209,102,0.2)]'
+                  ? 'z-50 scale-105 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                   : focusedMobileCard !== null
                   ? 'opacity-20 scale-95 pointer-events-none filter blur-[0.5px] z-10'
                   : 'z-30 translate-x-0 translate-y-0 rotate-0 hover:translate-y-[-8px]'
               }`}
             >
               <div>
-                <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                <h4 className="text-xl font-display font-black mb-2">
                   Roller Skating
                 </h4>
-                <p className="text-dark-navy/60 text-xs leading-relaxed font-light">
+                <p className="opacity-70 text-xs leading-relaxed font-light">
                   Speed, balance, and carving corners on wheels. Subdistrict 2nd place winner, proving concrete speed is stable.
                 </p>
               </div>
-              <div className="pt-3 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
-                <span className="font-bold text-[#FFD166]">quad roller skates</span>
-                <span className="text-[#FFD166]">TAP TO ZOOM</span>
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
+                <span className="font-bold">quad roller skates</span>
+                <span>TAP TO ZOOM</span>
               </div>
             </motion.div>
 
@@ -438,25 +417,25 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 e.stopPropagation();
                 setFocusedMobileCard(focusedMobileCard === 4 ? null : 4);
               }}
-              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-dark-navy/5 flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
+              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-white flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer ${
                 focusedMobileCard === 4
-                  ? 'z-50 scale-105 border-[#4CC9F0]/60 shadow-[0_0_30px_rgba(76,201,240,0.2)]'
+                  ? 'z-50 scale-105 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                   : focusedMobileCard !== null
                   ? 'opacity-20 scale-95 pointer-events-none filter blur-[0.5px] z-10'
                   : 'z-40 translate-x-[4px] translate-y-[-5px] rotate-3 hover:translate-y-[-12px]'
               }`}
             >
               <div>
-                <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                <h4 className="text-xl font-display font-black mb-2">
                   Music Mixing
                 </h4>
-                <p className="text-dark-navy/60 text-xs leading-relaxed font-light">
+                <p className="opacity-70 text-xs leading-relaxed font-light">
                   Layering frequencies and beatmatching. Mixing tracks is just real-time compilation: perfect harmony.
                 </p>
               </div>
-              <div className="pt-3 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
-                <span className="font-bold text-[#4CC9F0]">VirtualDJ</span>
-                <span className="text-[#4CC9F0]">TAP TO ZOOM</span>
+              <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
+                <span className="font-bold">VirtualDJ</span>
+                <span>TAP TO ZOOM</span>
               </div>
             </motion.div>
 
@@ -467,9 +446,9 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 e.stopPropagation();
                 setFocusedMobileCard(focusedMobileCard === 5 ? null : 5);
               }}
-              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-dark-navy/5 flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer overflow-hidden ${
+              className={`absolute inset-0 glass-panel p-6 rounded-2xl border-white flex flex-col justify-between shadow-xl transition-all duration-300 cursor-pointer overflow-hidden ${
                 focusedMobileCard === 5
-                  ? 'z-50 scale-105 border-[#00C896]/60 shadow-[0_0_30px_rgba(0,200,150,0.2)]'
+                  ? 'z-50 scale-105 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]'
                   : focusedMobileCard !== null
                   ? 'opacity-20 scale-95 pointer-events-none filter blur-[0.5px] z-10'
                   : 'z-45 translate-x-[12px] translate-y-[-10px] rotate-6 hover:translate-y-[-18px]'
@@ -479,20 +458,20 @@ export default function CardTableCapabilities({ isGravityActive }) {
                 // Full view when focused on mobile
                 <div className="flex flex-col h-full justify-between">
                   <div>
-                    <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                    <h4 className="text-xl font-display font-black mb-2">
                       Videography
                     </h4>
-                    <p className="text-dark-navy/60 text-xs leading-relaxed font-light mb-3">
+                    <p className="opacity-70 text-xs leading-relaxed font-light mb-3">
                       I make reality look significantly better than it actually is.
                     </p>
                   </div>
                   {/* Viewport Screen */}
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex flex-col border border-dark-navy/10 mb-2">
-                    <div className="h-6 border-b border-dark-navy/10 flex items-center px-2 bg-white/[0.01] z-20">
+                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex flex-col border border-white/20 mb-2">
+                    <div className="h-6 border-b border-white/10 flex items-center px-2 bg-white/[0.01] z-20">
                       <div className="w-1.5 h-1.5 rounded-full bg-red-500/80" />
                       <div className="w-1.5 h-1.5 rounded-full bg-amber-500/80" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00C896]" />
-                      <div className="mx-auto font-mono text-[7px] text-dark-navy/30 tracking-widest">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500/80" />
+                      <div className="mx-auto font-mono text-[7px] text-white/30 tracking-widest">
                         RAW_REC.mov
                       </div>
                     </div>
@@ -515,25 +494,25 @@ export default function CardTableCapabilities({ isGravityActive }) {
                       </div>
                     </div>
                   </div>
-                  <div className="pt-2 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
+                  <div className="pt-2 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
                     <span>4K / 60 FPS</span>
-                    <span className="text-[#00C896]">TAP TO RESET</span>
+                    <span>TAP TO RESET</span>
                   </div>
                 </div>
               ) : (
                 // Stack preview view
                 <div className="flex flex-col h-full justify-between">
                   <div>
-                    <h4 className="text-xl font-display font-black text-dark-navy mb-2">
+                    <h4 className="text-xl font-display font-black mb-2">
                       Videography
                     </h4>
-                    <p className="text-dark-navy/60 text-xs leading-relaxed font-light">
+                    <p className="opacity-70 text-xs leading-relaxed font-light">
                       I make reality look significantly better than it actually is.
                     </p>
                   </div>
-                  <div className="pt-3 border-t border-dark-navy/5 flex justify-between items-center text-[9px] font-mono text-dark-navy/40">
+                  <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
                     <span>4K / 60 FPS</span>
-                    <span className="text-[#00C896]">TAP TO PLAY</span>
+                    <span>TAP TO PLAY</span>
                   </div>
                 </div>
               )}
@@ -543,10 +522,45 @@ export default function CardTableCapabilities({ isGravityActive }) {
         </div>
 
         {/* Technical Status Indicator Footer */}
-        <div className="w-full border-t border-dark-navy/5 pt-4 flex items-center justify-between font-mono text-[9px] text-dark-navy/30 uppercase tracking-widest pointer-events-none select-none z-20">
+        <div className="w-full border-t border-white/10 pt-4 flex items-center justify-between font-mono text-[9px] opacity-30 uppercase tracking-widest pointer-events-none select-none z-20">
           <span></span>
-          <span className="text-[#FF6B35]/70 flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5">
           </span>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <section 
+      ref={containerRef} 
+      className="pt-24 pb-12 relative bg-transparent border-t border-white/10 overflow-hidden"
+      onClick={handleTabletopClick}
+    >
+      {/* Table Felt Backdrops & Blueprint Grid Overlay */}
+      <div className="absolute inset-0 tech-grid opacity-30 pointer-events-none" />
+
+      <div className="relative w-full">
+        {/* Layout Driver (Invisible) */}
+        <div className="opacity-0 pointer-events-none select-none w-full">
+          {renderTableContent("")}
+        </div>
+
+        {/* Left Column Layer (Light Pink on Dark Coral) */}
+        <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink fill-light-pink stroke-light-pink z-10">
+          <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
+            {renderTableContent("text-light-pink")}
+          </div>
+        </div>
+
+        {/* Right Column Layer (Dark Coral on Light Pink) */}
+        <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral fill-dark-coral stroke-dark-coral z-10">
+          <div 
+            className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
+            style={{ left: '-50vw' }}
+          >
+            {renderTableContent("text-dark-coral")}
+          </div>
         </div>
       </div>
     </section>

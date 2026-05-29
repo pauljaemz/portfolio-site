@@ -1,14 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream-bg: #FFFBF5;
-  --color-primary-coral: #FF6B35;
-  --color-secondary-purple: #7B61FF;
-  --color-accent-mint: #00C896;
-  --color-accent-yellow: #FFD166;
-  --color-accent-pink: #FF8FAB;
-  --color-accent-blue: #4CC9F0;
-  --color-dark-navy: #1A1A2E;
+  --color-dark-coral: #E55B6C;
+  --color-light-pink: #FFD1DC;
+  --color-border-white: #FFFFFF;
+  --color-cursor-black: #000000;
   
   --font-sans: "Plus Jakarta Sans", sans-serif;
   --font-mono: "Space Mono", monospace;
@@ -20,30 +16,31 @@ html {
 }
 
 body {
-  background-color: var(--color-cream-bg);
-  color: var(--color-dark-navy);
+  background-color: var(--color-light-pink);
+  color: var(--color-dark-coral);
   font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
-/* Base utility for playful card - we override glass-panel to behave as .fun-card so existing classes work seamlessly */
+/* Base utility for cards - minimalist white border card */
 .glass-panel {
-  background-color: #ffffff;
-  border: 2px solid rgba(26, 26, 46, 0.05);
-  box-shadow: 0 15px 35px rgba(26, 26, 46, 0.04);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 2.5px solid #FFFFFF;
   border-radius: 1.5rem;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Custom interactive selections */
+/* Custom selection */
 ::selection {
-  background-color: rgba(255, 107, 53, 0.2);
-  color: var(--color-dark-navy);
+  background-color: rgba(255, 255, 255, 0.3);
+  color: inherit;
 }
 
-/* Friendly colorful dotted grid overlay background */
+/* Minimalist light dotted grid backdrop */
 .tech-grid {
-  background-image: radial-gradient(rgba(123, 97, 255, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
 }
 
 /* Smooth drifting ambient gradient animation */
@@ -168,4 +165,40 @@ body {
   background-size: 100% 4px, 8px 8px, 6px 6px;
   animation: noise 0.2s steps(2) infinite;
   pointer-events: none;
+}
+
+.text-light-pink {
+  color: var(--color-light-pink) !important;
+  fill: var(--color-light-pink) !important;
+  stroke: var(--color-light-pink) !important;
+}
+
+.text-dark-coral {
+  color: var(--color-dark-coral) !important;
+  fill: var(--color-dark-coral) !important;
+  stroke: var(--color-dark-coral) !important;
+}
+
+.border-light-pink {
+  border-color: var(--color-light-pink) !important;
+}
+
+.border-dark-coral {
+  border-color: var(--color-dark-coral) !important;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1.5px currentColor;
+  color: transparent !important;
+}
+
+@media (min-width: 768px) {
+  .text-outline {
+    -webkit-text-stroke: 2px currentColor;
+  }
+}
+
+.graphic-asset,
+.graphic-asset * {
+  fill: none !important;
 }

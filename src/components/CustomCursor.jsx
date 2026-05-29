@@ -95,19 +95,19 @@ export default function CustomCursor() {
         }}
         animate={{
           scale: isHovered ? 1.6 : 1.0,
-          borderColor: isHovered ? 'rgba(255, 143, 171, 0.7)' : 'rgba(123, 97, 255, 0.4)', // Pink vs Purple
-          backgroundColor: isHovered ? 'rgba(255, 143, 171, 0.15)' : 'rgba(123, 97, 255, 0.05)',
+          borderColor: isHovered ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.35)',
+          backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.05)' : 'rgba(0, 0, 0, 0.01)',
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="w-10 h-10 rounded-full border border-solid backdrop-blur-[1px] shadow-[0_0_15px_rgba(123,97,255,0.1)] mix-blend-multiply flex items-center justify-center"
+        className="w-10 h-10 rounded-full border border-solid backdrop-blur-[1px] shadow-[0_0_10px_rgba(0,0,0,0.05)] flex items-center justify-center"
       >
-        {/* Glowing aura inside orb */}
+        {/* Subtle dot border inside orb */}
         <motion.div
           animate={{
-            scale: isHovered ? 1.4 : 1.0,
-            opacity: isHovered ? 0.35 : 0.2,
+            scale: isHovered ? 1.2 : 1.0,
+            opacity: isHovered ? 0.3 : 0.1,
           }}
-          className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-[#FF6B35] to-[#7B61FF] blur-[4px]"
+          className="absolute inset-1 rounded-full border border-dashed border-black"
         />
       </motion.div>
 
@@ -121,10 +121,10 @@ export default function CustomCursor() {
         }}
         animate={{
           scale: isHovered ? 1.2 : 1.0,
-          backgroundColor: isHovered ? '#FF8FAB' : '#FF6B35', // Pink vs Coral
+          backgroundColor: '#000000',
         }}
         transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-        className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,107,53,0.4)] z-10"
+        className="w-2.5 h-2.5 rounded-full shadow-[0_0_4px_rgba(0,0,0,0.25)] z-10"
       />
     </div>
   );

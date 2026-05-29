@@ -73,7 +73,7 @@ const FloatingAsset = React.memo(function FloatingAsset({ children, initialLeft,
         stiffness: 55,
         damping: 13,
         mass: 1.1,
-        delay: 0.15 + Math.random() * 0.3
+        delay: 0.15 + (((parseFloat(initialLeft) || 0) * 17 + (parseFloat(initialTop) || 0) * 23) % 10) * 0.03
       }}
       style={isGravityActive ? {
         left: initialLeft,

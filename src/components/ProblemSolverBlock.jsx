@@ -24,64 +24,48 @@ export default function ProblemSolverBlock() {
   const eRotate = useTransform(scrollYProgress, [0.20, 0.46], [90, 0]);
   const eOpacity = useTransform(scrollYProgress, [0.16, 0.28], [0, 1]);
 
-  return (
-    <section 
-      ref={containerRef}
-      className="pt-16 pb-36 relative z-10 border-t border-b border-dark-navy/5 overflow-hidden w-full bg-transparent tech-grid"
-    >
-      {/* Playful Glowing Ambient Light Core */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[350px] bg-gradient-to-tr from-[#FF6B35]/8 to-[#7B61FF]/4 rounded-[100%] blur-[120px] -z-10 mix-blend-multiply pointer-events-none" />
-
-      <div className="w-full max-w-[95%] mx-auto px-4 flex flex-col items-center justify-center relative select-none">
-        
-        {/* Colossal Screen-Spanning Viewport-scaled Typography */}
-        
+  const renderColossalTypography = (themeClass) => {
+    return (
+      <div className={`w-full max-w-[95%] mx-auto px-4 flex flex-col items-center justify-center relative select-none ${themeClass}`}>
         {/* Line 1: THE */}
-        <h2 className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter text-dark-navy/5 uppercase mb-2">
+        <h2 className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter opacity-15 uppercase mb-2">
           THE
         </h2>
         
-        {/* Line 2: PROBLEM - Shakes and turns coral-hot when "problems" is hovered */}
+        {/* Line 2: PROBLEM */}
         <motion.h2 
           animate={hoveredTerm === 'problems' ? { 
             x: [0, -4, 4, -4, 4, 0],
-            color: '#FF6B35',
-            textShadow: '0 0 35px rgba(255, 107, 53, 0.4)'
+            textShadow: '0 0 25px currentColor'
           } : { 
             x: 0,
-            color: 'rgba(26, 26, 46, 0.08)',
             textShadow: 'none'
           }}
           transition={hoveredTerm === 'problems' ? {
-            x: { repeat: Infinity, duration: 0.15 },
-            color: { duration: 0.3 },
-            textShadow: { duration: 0.3 }
-          } : {
-            color: { duration: 0.4 },
-            textShadow: { duration: 0.4 }
-          }}
-          className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter uppercase mb-4"
+            x: { repeat: Infinity, duration: 0.15 }
+          } : {}}
+          className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter uppercase mb-4 opacity-40"
         >
           PROBLEM
         </motion.h2>
         
         {/* Line 3: SOLVER */}
-        <h2 className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter text-dark-navy uppercase flex items-center justify-center">
+        <h2 className="text-[12vw] font-display font-black leading-[0.85] tracking-tighter uppercase flex items-center justify-center">
           SOLV
           
           {/* Animated Letter Slot */}
-          <span className="relative inline-block w-[1.05ch] h-[1ch] overflow-visible text-[#7B61FF] mx-1 exclude-physics">
+          <span className="relative inline-block w-[1.05ch] h-[1ch] overflow-visible mx-1 exclude-physics">
             
-            {/* Dotted target box indicator - lights up when "solution" is hovered */}
+            {/* Dotted target box indicator */}
             <span className={`absolute inset-0 border border-dashed rounded-2xl scale-[0.85] flex items-center justify-center text-[4vw] font-mono font-light select-none transition-all duration-500 ${
               hoveredTerm === 'solution' 
-                ? 'border-[#7B61FF] bg-[#7B61FF]/10 text-[#7B61FF]/35' 
-                : 'border-[#7B61FF]/20 text-[#7B61FF]/15'
+                ? 'border-current bg-current/10 opacity-70' 
+                : 'border-current/25 opacity-30'
             }`}>
               [ ]
             </span>
             
-            {/* The Closed 3D Isometric Wireframe Box (Sitting directly above the slot) - lifts and turns yellow when "out of the box" is hovered */}
+            {/* The Closed 3D Isometric Wireframe Box */}
             <motion.div 
               animate={{ 
                 y: hoveredTerm === 'box' ? -18 : 0, 
@@ -90,23 +74,21 @@ export default function ProblemSolverBlock() {
               transition={{ type: 'spring', stiffness: 300, damping: 15 }}
               className="absolute left-1/2 -translate-x-1/2 bottom-[1.05em] w-[2.2ch] h-[2.2ch] flex items-center justify-center pointer-events-none select-none z-20 overflow-visible"
             >
-              <svg className={`w-full h-full fill-none stroke-[1.2] transition-colors duration-500 ${
-                hoveredTerm === 'box' ? 'text-[#FFD166]' : 'text-[#7B61FF]'
-              }`} viewBox="0 0 100 100">
+              <svg className="w-full h-full fill-none stroke-[1.4]" viewBox="0 0 100 100">
                 {/* Dotted footprint shadow */}
                 <ellipse cx="50" cy="80" rx="22" ry="7" stroke="currentColor" strokeDasharray="2,2" strokeOpacity="0.25" />
                 
-                {/* 3D isometric far corners (Obscured back lines) */}
+                {/* 3D isometric far corners */}
                 <path d="M 50 25 L 22 39 L 22 67 M 50 25 L 78 39 L 78 67" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="1.5,1.5" />
                 <line x1="50" y1="25" x2="50" y2="53" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="1.5,1.5" />
 
                 {/* Front facing corners and faces */}
-                <path d="M 22 67 L 50 81 L 78 67 L 78 39 L 50 53 L 22 39 Z" stroke="currentColor" strokeOpacity="0.7" />
-                <line x1="50" y1="53" x2="50" y2="81" stroke="currentColor" strokeOpacity="0.7" />
+                <path d="M 22 67 L 50 81 L 78 67 L 78 39 L 50 53 L 22 39 Z" stroke="currentColor" strokeOpacity="0.75" />
+                <line x1="50" y1="53" x2="50" y2="81" stroke="currentColor" strokeOpacity="0.75" />
 
                 {/* Openable Top Lid */}
                 <motion.path 
-                   d="M 22 39 L 50 25 L 78 39 L 50 53 Z" 
+                  d="M 22 39 L 50 25 L 78 39 L 50 53 Z" 
                   stroke="currentColor" 
                   strokeWidth="1.8"
                   fill="currentColor"
@@ -116,15 +98,15 @@ export default function ProblemSolverBlock() {
               </svg>
             </motion.div>
 
-            {/* The letter 'E' - glows supercharged when "solution" is hovered */}
+            {/* The letter 'E' */}
             <motion.span 
               animate={{
                 scale: hoveredTerm === 'solution' ? 1.15 : 1,
                 filter: hoveredTerm === 'solution' 
-                  ? 'drop-shadow(0 0 25px rgba(255, 107, 53, 0.8))' 
-                  : 'drop-shadow(0 0 12px rgba(255, 107, 53, 0.4))'
+                  ? 'drop-shadow(0 0 25px currentColor)' 
+                  : 'drop-shadow(0 0 10px currentColor)'
               }}
-              className="absolute inset-0 flex items-center justify-center text-[#FF6B35] font-display font-black"
+              className="absolute inset-0 flex items-center justify-center font-display font-black"
               style={{ y: eY, scale: eScale, rotate: eRotate, opacity: eOpacity }}
             >
               E
@@ -134,37 +116,96 @@ export default function ProblemSolverBlock() {
           R
         </h2>
       </div>
+    );
+  };
 
-      {/* Engage description copy + Monospace technical status core */}
-      <div className="max-w-2xl mx-auto px-6 text-center mt-16 relative z-10">
+  const renderDescriptionBlock = (colorClass) => {
+    return (
+      <div className={`max-w-3xl mx-auto px-6 w-full text-center mt-16 text-base md:text-lg font-light leading-relaxed select-none ${colorClass}`}>
+        The heaviest{" "}
+        <span 
+          onMouseEnter={() => setHoveredTerm('problems')}
+          onMouseLeave={() => setHoveredTerm(null)}
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+        >
+          problems
+        </span>{" "}
+        tend to crack under a ridiculously{" "}
+        <span 
+          onMouseEnter={() => setHoveredTerm('solution')}
+          onMouseLeave={() => setHoveredTerm(null)}
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+        >
+          simple solution
+        </span>
+        , pulled completely{" "}
+        <span 
+          onMouseEnter={() => setHoveredTerm('box')}
+          onMouseLeave={() => setHoveredTerm(null)}
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+        >
+          out of the box
+        </span>
+        . It's almost funny how well it works.
+      </div>
+    );
+  };
 
-        <p className="text-dark-navy/60 text-base md:text-lg leading-relaxed font-sans font-light select-text max-w-2xl mx-auto text-left md:text-center">
-          The heaviest{" "}
-          <span 
-            onMouseEnter={() => setHoveredTerm('problems')}
-            onMouseLeave={() => setHoveredTerm(null)}
-            className="text-dark-navy hover:text-[#FF6B35] hover:border-[#FF6B35]/40 border-b border-dark-navy/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+  return (
+    <section 
+      ref={containerRef}
+      className="pt-24 pb-32 relative z-10 border-t border-b border-white/10 overflow-hidden w-full bg-transparent"
+    >
+      <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
+
+      {/* RENDER DUAL COLLATERAL LAYERS */}
+      <div className="w-full relative min-h-[38vw]">
+        {/* Invisible driver to preserve normal layout bounds */}
+        <div className="opacity-0 pointer-events-none select-none w-full">
+          {renderColossalTypography("")}
+        </div>
+
+        {/* Left half: Light Pink */}
+        <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink stroke-light-pink fill-light-pink pointer-events-none select-none">
+          <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
+            {renderColossalTypography("text-light-pink")}
+          </div>
+        </div>
+
+        {/* Right half: Dark Coral */}
+        <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral stroke-dark-coral fill-dark-coral pointer-events-none select-none">
+          <div 
+            className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
+            style={{ left: '-50vw' }}
           >
-            problems
-          </span>{" "}
-          tend to crack under a ridiculously simple{" "}
-          <span 
-            onMouseEnter={() => setHoveredTerm('solution')}
-            onMouseLeave={() => setHoveredTerm(null)}
-            className="text-dark-navy hover:text-[#7B61FF] hover:border-[#7B61FF]/40 border-b border-dark-navy/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+            {renderColossalTypography("text-dark-coral")}
+          </div>
+        </div>
+      </div>
+
+      {/* DESCRIPTION BLOCK: split vertically down the middle */}
+      <div className="w-full relative min-h-[60px] md:min-h-[80px]">
+        {/* Invisible driver (SITS ON TOP to capture mouse hover events cleanly!) */}
+        <div className="relative z-20 opacity-0 w-full cursor-help">
+          {renderDescriptionBlock("")}
+        </div>
+
+        {/* Left half: Light Pink */}
+        <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink stroke-light-pink fill-light-pink pointer-events-none select-none z-10">
+          <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
+            {renderDescriptionBlock("text-light-pink")}
+          </div>
+        </div>
+
+        {/* Right half: Dark Coral */}
+        <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral stroke-dark-coral fill-dark-coral pointer-events-none select-none z-10">
+          <div 
+            className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
+            style={{ left: '-50vw' }}
           >
-            solution
-          </span>
-          , pulled completely{" "}
-          <span 
-            onMouseEnter={() => setHoveredTerm('box')}
-            onMouseLeave={() => setHoveredTerm(null)}
-            className="text-dark-navy hover:text-[#FFD166] hover:border-[#FFD166]/40 border-b border-dark-navy/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
-          >
-            out of the box
-          </span>
-          . It's almost funny how well it works.
-        </p>
+            {renderDescriptionBlock("text-dark-coral")}
+          </div>
+        </div>
       </div>
     </section>
   );
