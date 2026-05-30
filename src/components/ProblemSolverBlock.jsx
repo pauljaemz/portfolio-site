@@ -143,7 +143,7 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
 
   const renderDescriptionBlock = (colorClass) => {
     return (
-      <div className={`max-w-3xl mx-auto px-6 w-full text-center text-base md:text-lg font-light leading-relaxed select-none ${colorClass}`}>
+      <div className={`max-w-3xl mx-auto px-6 w-full text-center text-base md:text-lg font-light leading-relaxed select-none pt-16 pb-8 ${colorClass}`}>
         The heaviest{" "}
         <span 
           onMouseEnter={() => setHoveredTerm('problems')}
@@ -223,7 +223,7 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
       </div>
 
       {/* DESCRIPTION BLOCK: split vertically down the middle */}
-      <div className="w-full relative min-h-[140px] pt-16 pb-8">
+      <div className="w-full relative min-h-[140px]">
         {/* Invisible driver (SITS ON TOP to capture mouse hover events cleanly!) */}
         <div className="relative z-20 opacity-0 w-full cursor-help">
           {renderDescriptionBlock("")}

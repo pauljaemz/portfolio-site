@@ -728,7 +728,7 @@ export default function App() {
               PAUL JAMES
             </h4>
             <p className={`font-mono text-[10px] md:text-xs tracking-wider opacity-50 ${colorClass}`}>
-              © {new Date().getFullYear()} PAUL JAMES. CREATIVE DEVELOPER & AI ENGINEER.
+              © {new Date().getFullYear()} PAUL JAMES. DEV & AI.
             </p>
           </div>
           

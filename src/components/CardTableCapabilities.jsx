@@ -178,7 +178,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                 </svg>
               </div>
               <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
-                Helping businesses design a creative online front desk that makes visitors actually want to stick around. I build custom digital lobbies that are super friendly, extremely smooth, and totally jargon-free.
+                I build custom, super friendly websites that help businesses welcome their online visitors. No tech jargon—just clean, smooth designs that work.
               </p>
             </div>
             <div className="pt-4 border-t border-white/10 flex justify-between items-center">
@@ -340,7 +340,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   </p>
                 </div>
                 <span className="font-mono text-[10px] opacity-40">
-                  4K DCI / 60 FPS / Color Grading / CSS Blueprints
+                  Canon PowerShot A3400IS, 1080p 60 FPS
                 </span>
               </div>
 
@@ -420,7 +420,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   Freelancer / Web Dev
                 </h4>
                 <p className="opacity-70 text-xs leading-relaxed font-light">
-                  Helping businesses design a creative online front desk that makes visitors actually want to stick around. I build custom digital lobbies that are super friendly, extremely smooth, and totally jargon-free.
+                  I build custom, super friendly websites that help businesses welcome their online visitors. No tech jargon—just clean, smooth designs that work.
                 </p>
               </div>
               <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
@@ -569,7 +569,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                     </div>
                   </div>
                   <div className="pt-2 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
-                    <span>4K / 60 FPS</span>
+                    <span>Canon PowerShot A3400IS, 1080p 60 FPS</span>
                     <span>TAP TO RESET</span>
                   </div>
                 </div>
@@ -585,7 +585,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                     </p>
                   </div>
                   <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
-                    <span>4K / 60 FPS</span>
+                    <span>Canon PowerShot A3400IS, 1080p 60 FPS</span>
                     <span>TAP TO PLAY</span>
                   </div>
                 </div>

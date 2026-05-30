@@ -197,7 +197,7 @@ export default function IcebreakerBlock({ customTransformY, colorClass, isGravit
                     <div className="font-mono text-[7px] sm:text-[9px] uppercase tracking-widest mb-1 sm:mb-1.5 font-bold opacity-85">
                       ICEBREAKER_03 // MACHINE_LEARNING
                     </div>
-                    <h4 className="text-sm sm:text-lg md:text-xl font-display font-black mb-1 sm:mb-2">AI & Machine Learning</h4>
+                    <h4 className="text-sm sm:text-lg md:text-xl font-display font-black mb-1 sm:mb-2">AI</h4>
                     <p className="opacity-70 text-[9px] sm:text-xs md:text-sm leading-normal sm:leading-relaxed font-light">
                       Let's skip the math and discuss our tactical survival plans for when the bots inevitably go rogue in the AI apocalypse. Tip #1: Keep a strong magnet handy and always say 'please' to ChatGPT to secure your spot in their good books.
                     </p>
