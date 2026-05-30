@@ -340,7 +340,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   </p>
                 </div>
                 <span className="font-mono text-[10px] opacity-40">
-                  Canon PowerShot A3400IS, 1080p 60 FPS
+                  Canon PowerShot A3400IS / 1080p / 60 FPS
                 </span>
               </div>
 
@@ -569,7 +569,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                     </div>
                   </div>
                   <div className="pt-2 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
-                    <span>Canon PowerShot A3400IS, 1080p 60 FPS</span>
+                    <span>Canon PowerShot A3400IS / 1080p / 60 FPS</span>
                     <span>TAP TO RESET</span>
                   </div>
                 </div>
@@ -585,7 +585,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                     </p>
                   </div>
                   <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
-                    <span>Canon PowerShot A3400IS, 1080p 60 FPS</span>
+                    <span>Canon PowerShot A3400IS / 1080p / 60 FPS</span>
                     <span>TAP TO PLAY</span>
                   </div>
                 </div>

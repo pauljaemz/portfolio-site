@@ -7,6 +7,18 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
   // Track currently hovered term in the copywriting below to connect with visual elements above
   const [hoveredTerm, setHoveredTerm] = React.useState(null);
 
+  React.useEffect(() => {
+    const handleGlobalHover = (e) => {
+      setHoveredTerm(e.detail);
+    };
+    window.addEventListener('problem-solver-hover', handleGlobalHover);
+    return () => window.removeEventListener('problem-solver-hover', handleGlobalHover);
+  }, []);
+
+  const triggerHover = (term) => {
+    window.dispatchEvent(new CustomEvent('problem-solver-hover', { detail: term }));
+  };
+
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -89,11 +101,22 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
             
             {/* The Closed 3D Isometric Wireframe Box */}
             <motion.div 
-              animate={{ 
-                y: hoveredTerm === 'box' ? -18 : 0, 
-                scale: hoveredTerm === 'box' ? 1.15 : 1 
+              animate={hoveredTerm === 'box' ? { 
+                y: [-12, -22, -12],
+                rotate: [0, 2, -2, 0],
+                scale: 1.15
+              } : { 
+                y: 0, 
+                rotate: 0,
+                scale: 1 
               }}
-              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+              transition={hoveredTerm === 'box' ? {
+                y: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+                rotate: { repeat: Infinity, duration: 2.5, ease: "easeInOut" },
+                scale: { type: 'spring', stiffness: 300, damping: 15 }
+              } : { 
+                type: 'spring', stiffness: 300, damping: 15 
+              }}
               className="absolute left-1/2 -translate-x-1/2 bottom-[1.05em] w-[2.2ch] h-[2.2ch] flex items-center justify-center pointer-events-none select-none z-20 overflow-visible"
             >
               <svg className="w-full h-full fill-none stroke-[1.4]" viewBox="0 0 100 100">
@@ -143,27 +166,27 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
 
   const renderDescriptionBlock = (colorClass) => {
     return (
-      <div className={`max-w-3xl mx-auto px-6 w-full text-center text-base md:text-lg font-light leading-relaxed select-none pt-16 pb-8 ${colorClass}`}>
+      <div className={`max-w-3xl mx-auto px-6 w-full text-center text-base md:text-lg font-light leading-relaxed select-none pt-0 pb-16 ${colorClass}`}>
         The heaviest{" "}
         <span 
-          onMouseEnter={() => setHoveredTerm('problems')}
-          onMouseLeave={() => setHoveredTerm(null)}
+          onMouseEnter={() => triggerHover('problems')}
+          onMouseLeave={() => triggerHover(null)}
           className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           problems
         </span>{" "}
         tend to crack under a ridiculously{" "}
         <span 
-          onMouseEnter={() => setHoveredTerm('solution')}
-          onMouseLeave={() => setHoveredTerm(null)}
+          onMouseEnter={() => triggerHover('solution')}
+          onMouseLeave={() => triggerHover(null)}
           className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           simple solution
         </span>
         , pulled completely{" "}
         <span 
-          onMouseEnter={() => setHoveredTerm('box')}
-          onMouseLeave={() => setHoveredTerm(null)}
+          onMouseEnter={() => triggerHover('box')}
+          onMouseLeave={() => triggerHover(null)}
           className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           out of the box
@@ -177,13 +200,13 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
     return (
       <section 
         ref={containerRef}
-        className="pt-16 pb-20 relative z-10 overflow-hidden w-full bg-transparent"
+        className="pt-8 pb-20 relative z-10 overflow-hidden w-full bg-transparent"
       >
         <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
         <div className="w-full relative text-light-pink">
           {renderColossalTypography("text-light-pink")}
         </div>
-        <div className="w-full relative pt-10 pb-4 text-light-pink">
+        <div className="w-full relative pt-6 pb-4 text-light-pink">
           {renderDescriptionBlock("text-light-pink")}
         </div>
       </section>
@@ -193,7 +216,7 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
   return (
     <section 
       ref={containerRef}
-      className="pt-24 pb-32 relative z-10 overflow-hidden w-full bg-transparent"
+      className="pt-12 pb-32 relative z-10 overflow-hidden w-full bg-transparent"
     >
       <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
 
@@ -223,7 +246,7 @@ export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
       </div>
 
       {/* DESCRIPTION BLOCK: split vertically down the middle */}
-      <div className="w-full relative min-h-[140px]">
+      <div className="w-full relative min-h-[140px] mt-[-36px]">
         {/* Invisible driver (SITS ON TOP to capture mouse hover events cleanly!) */}
         <div className="relative z-20 opacity-0 w-full cursor-help">
           {renderDescriptionBlock("")}
