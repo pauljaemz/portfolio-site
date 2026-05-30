@@ -157,6 +157,33 @@ function MilestoneNode({ stage, pathLength }) {
 
 export default function EvolutionPath({ customTransformY }) {
   const containerRef = React.useRef(null);
+  const boundsRef = React.useRef({ start: 2700, end: 4000 });
+
+  React.useEffect(() => {
+    const updateBounds = () => {
+      if (containerRef.current) {
+        const offsetTop = containerRef.current.offsetTop;
+        const height = containerRef.current.offsetHeight;
+        const viewportHeight = window.innerHeight || 900;
+        
+        // Calibrate start and end dynamically based on element position
+        boundsRef.current = {
+          start: offsetTop - viewportHeight, // starts exactly as it enters the viewport
+          end: offsetTop + height - 200
+        };
+      }
+    };
+    
+    updateBounds();
+    window.addEventListener('resize', updateBounds);
+    const t1 = setTimeout(updateBounds, 500);
+    const t2 = setTimeout(updateBounds, 1500);
+    return () => {
+      window.removeEventListener('resize', updateBounds);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
   
   // Track scroll progress of this timeline section
   const { scrollYProgress: localProgress } = useScroll({
@@ -168,8 +195,7 @@ export default function EvolutionPath({ customTransformY }) {
   const mappedProgress = useTransform(customTransformY || new useMotionValue(0), (y) => {
     if (customTransformY) {
       const scrollY = -y;
-      const start = 2700;
-      const end = 4000;
+      const { start, end } = boundsRef.current;
       const progress = (scrollY - start) / (end - start);
       return Math.max(0, Math.min(progress, 1));
     }
@@ -181,10 +207,14 @@ export default function EvolutionPath({ customTransformY }) {
   // Holographic 3D Pitch Tilt
   const rotateX = useTransform(scrollYProgress, [0, 0.5, 1.0], [22, 0, 0]);
   
-  // Timeline Line Growth
-  const pathLength = useTransform(scrollYProgress, [0.15, 0.5, 1.0], [0, 1, 1]);
+  // Timeline Line Growth (Reduced starting delay to 0.25)
+  const pathLength = useTransform(scrollYProgress, [0.25, 0.60, 1.0], [0, 1, 1]);
+  const futurePathLength = useTransform(scrollYProgress, [0.60, 0.85], [0, 1]);
 
-  const renderTimelineSVG = () => {
+  const renderTimelineSVG = (colorClass = '') => {
+    const suffix = colorClass.trim().replace(/[^a-zA-Z0-9-]/g, '-') || 'layout';
+    const stripesId = `stripes-${suffix}`;
+
     return (
       <svg 
         className="w-full h-[260px] overflow-visible evolution-svg"
@@ -200,23 +230,10 @@ export default function EvolutionPath({ customTransformY }) {
 
         <defs>
           {/* Pattern for dark coral pink and light pink stripes */}
-          <pattern id="stripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <pattern id={stripesId} width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <rect width="8" height="16" fill="#E55B6C" />
             <rect x="8" width="8" height="16" fill="#FFD1DC" />
           </pattern>
-
-          {/* SVG Mask for smooth left-to-right draw reveal of active path */}
-          <mask id="drawMask">
-            <motion.path
-              d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
-              stroke="white"
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              style={{ pathLength }}
-            />
-          </mask>
         </defs>
 
         {/* Alternate Faded Timelines (Unrealized Destinies) */}
@@ -231,7 +248,7 @@ export default function EvolutionPath({ customTransformY }) {
               {/* Branch Curve Line */}
               <motion.path
                 d={altStage.pathD}
-                stroke="white"
+                stroke="currentColor"
                 strokeWidth="1.2"
                 strokeOpacity="0.4"
                 strokeDasharray="3,4"
@@ -286,7 +303,7 @@ export default function EvolutionPath({ customTransformY }) {
         {/* 1. Faint Background Dotted Curved Path - Entire Infinite Line */}
         <path
           d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeOpacity="0.15"
           strokeDasharray="4,6"
@@ -295,57 +312,57 @@ export default function EvolutionPath({ customTransformY }) {
           fill="none"
         />
 
-        {/* 2. Soft Ambient White Glow Path (masked, up to The Future at 900) */}
-        <path
+        {/* 2. Soft Ambient Glow Path (Animates pathLength directly) */}
+        <motion.path
           d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="8"
           strokeOpacity="0.12"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          mask="url(#drawMask)"
+          style={{ pathLength }}
         />
 
-        {/* 3. Thick White Core Path (masked, up to The Future at 900) */}
-        <path
+        {/* 3. Thick Main Core Path (Animates pathLength directly) */}
+        <motion.path
           d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="5"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          mask="url(#drawMask)"
+          style={{ pathLength }}
         />
 
-        {/* 4. Thinner Stripes Pattern Path (masked, inside the white line, up to The Future) */}
-        <path
+        {/* 4. Thinner Stripes Pattern Path (Animates pathLength directly) */}
+        <motion.path
           d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
-          stroke="url(#stripes)"
+          stroke={`url(#${stripesId})`}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          mask="url(#drawMask)"
+          style={{ pathLength }}
         />
 
-        {/* 5. Undefined Dashed Future Path (masked, after The Future, 900 to 1000) */}
-        <path
+        {/* 5. Undefined Dashed Future Path (Animates futurePathLength directly) */}
+        <motion.path
           d="M 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
-          stroke="white"
+          stroke="currentColor"
           strokeWidth="1.8"
           strokeOpacity="0.45"
           strokeDasharray="4,6"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
-          mask="url(#drawMask)"
+          style={{ pathLength: futurePathLength }}
         />
 
         {/* Vector arrowhead pointing into the future (white) */}
         <polygon
           points="979,96 979,104 987,100"
-          fill="white"
+          fill="currentColor"
           opacity="0.3"
         />
 
@@ -372,7 +389,7 @@ export default function EvolutionPath({ customTransformY }) {
 
         {/* Responsive Horizontal SVG Viewport Container (Perfect scale-to-fit on all screens, no swiping) */}
         <div className="w-full relative px-4 md:px-12 lg:px-24 select-none overflow-visible py-4 h-[280px]">
-          {renderTimelineSVG()}
+          {renderTimelineSVG(colorClass)}
         </div>
       </div>
     );

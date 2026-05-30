@@ -9,6 +9,7 @@
   --font-sans: "Plus Jakarta Sans", sans-serif;
   --font-mono: "Space Mono", monospace;
   --font-display: "Outfit", sans-serif;
+  --font-gellix: "Gellix", "Gellix-Bold", "Gellix Bold", "Urbanist", "Syne", "Outfit", sans-serif;
 }
 
 html {
@@ -209,4 +210,8 @@ body {
 .graphic-asset,
 .graphic-asset * {
   fill: none !important;
+}
+
+.font-gellix {
+  font-family: "Gellix", "Gellix-Bold", "Gellix Bold", "Urbanist", "Syne", "Outfit", sans-serif !important;
 }

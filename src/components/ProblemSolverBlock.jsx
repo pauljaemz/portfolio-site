@@ -27,16 +27,16 @@ export default function ProblemSolverBlock({ customTransformY }) {
 
   const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
-  // 1. Box Lid Transforms: slides up and fades as the box opens (starts earlier at 0.15)
-  const lidY = useTransform(scrollYProgress, [0.15, 0.38], [0, -45]);
-  const lidOpacity = useTransform(scrollYProgress, [0.15, 0.38], [1, 0.15]);
+  // 1. Box Lid Transforms: slides up and fades as the box opens (starts later at 0.30)
+  const lidY = useTransform(scrollYProgress, [0.30, 0.55], [0, -45]);
+  const lidOpacity = useTransform(scrollYProgress, [0.30, 0.55], [1, 0.15]);
 
   // 2. The Letter E Breaks out: emerges from inside the box (-140% vertical offset) and lands at baseline (0%)
-  // Fine-tuned to a gold-pocket timing (starts at 0.20 and locks in by 0.46 progress)
-  const eY = useTransform(scrollYProgress, [0.20, 0.46], ["-140%", "0%"]);
-  const eScale = useTransform(scrollYProgress, [0.20, 0.43], [0.4, 1]);
-  const eRotate = useTransform(scrollYProgress, [0.20, 0.46], [90, 0]);
-  const eOpacity = useTransform(scrollYProgress, [0.16, 0.28], [0, 1]);
+  // Fine-tuned to start at 0.35 and lock in by 0.62 progress
+  const eY = useTransform(scrollYProgress, [0.35, 0.62], ["-140%", "0%"]);
+  const eScale = useTransform(scrollYProgress, [0.35, 0.58], [0.4, 1]);
+  const eRotate = useTransform(scrollYProgress, [0.35, 0.62], [90, 0]);
+  const eOpacity = useTransform(scrollYProgress, [0.32, 0.44], [0, 1]);
 
   const renderColossalTypography = (themeClass) => {
     return (

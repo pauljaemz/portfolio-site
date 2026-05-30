@@ -19,7 +19,7 @@ export default function CalibrationScale({ leftTransformY, rightTransformY }) {
   const ticks = [-30, -15, 0, 15, 30];
 
   return (
-    <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center justify-center select-none w-[100px] h-[80px] overflow-hidden">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center justify-center select-none w-[100px] h-[80px] overflow-hidden">
       
       {/* LEFT COLUMN STATIC BLACK TICKS */}
       <div className="absolute left-0 w-[50px] h-full overflow-hidden">

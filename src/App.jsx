@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import CustomCursor from './components/CustomCursor';
 import FloatingAsset from './components/FloatingAsset';
 import CalibrationScale from './components/CalibrationScale';
@@ -10,6 +10,8 @@ const ProblemSolverBlock = React.lazy(() => import('./components/ProblemSolverBl
 const CardTableCapabilities = React.lazy(() => import('./components/CardTableCapabilities'));
 const EvolutionPath = React.lazy(() => import('./components/EvolutionPath'));
 const GravitySandbox = React.lazy(() => import('./components/GravitySandbox'));
+const IcebreakerBlock = React.lazy(() => import('./components/IcebreakerBlock'));
+import B747Schematic from './components/B747Schematic';
 
 // Reusable animation configuration
 const fadeInUp = {
@@ -59,70 +61,9 @@ function TechSkeleton({ height = '400px', label = 'LOADING SYSTEM CAPABILITIES' 
   );
 }
 
-function B747Schematic() {
-  return (
-    <svg className="w-[300px] md:w-[500px] h-auto stroke-[1.2] fill-none graphic-asset" viewBox="0 0 500 250">
-      {/* Boeing 747 Fuselage Silhouette with Double-Decker Cockpit Hump */}
-      <path 
-        d="M 40 140 C 40 130, 55 115, 80 105 L 160 105 C 185 105, 195 120, 210 120 L 400 120 C 425 120, 445 130, 460 138 C 445 145, 420 150, 400 150 L 70 150 C 48 150, 40 145, 40 140 Z" 
-        stroke="currentColor" 
-      />
-      {/* Swept-back Vertical Tail Fin (Stabilizer) */}
-      <path d="M 380 120 L 430 45 L 450 45 L 458 135 Z" stroke="currentColor" />
-      {/* Horizontal Tail Wing (Stabilizer) */}
-      <path d="M 425 138 L 465 160 L 472 160 L 455 138 Z" stroke="currentColor" />
-      {/* Near-Side Swept Wing (angled downwards and backwards in perspective) */}
-      <path d="M 180 148 L 280 205 L 295 205 L 240 148 Z" stroke="currentColor" />
-      {/* Far-Side Swept Wing (angled upwards and backwards in perspective) */}
-      <path d="M 190 120 L 260 80 L 272 80 L 230 120 Z" stroke="currentColor" />
-      
-      {/* Four Wing-Suspended Turbine Engine Pods with Connecting Pylons */}
-      {/* Near Wing Inboard Engine (Engine 2) */}
-      <line x1="210" y1="165" x2="210" y2="178" stroke="currentColor" />
-      <path d="M 195 174 L 222 174 L 228 178 L 222 182 L 195 182 Z" stroke="currentColor" />
-      <line x1="195" y1="174" x2="195" y2="182" stroke="currentColor" strokeOpacity="0.6" />
-      {/* Near Wing Outboard Engine (Engine 1) */}
-      <line x1="255" y1="190" x2="255" y2="201" stroke="currentColor" />
-      <path d="M 242 197 L 264 197 L 269 201 L 264 205 L 242 205 Z" stroke="currentColor" />
-      <line x1="242" y1="197" x2="242" y2="205" stroke="currentColor" strokeOpacity="0.6" />
-      {/* Far Wing Inboard Engine (Engine 3) */}
-      <line x1="215" y1="106" x2="215" y2="96" stroke="currentColor" />
-      <path d="M 204 93 L 224 93 L 228 97 L 224 101 L 204 101 Z" stroke="currentColor" />
-      <line x1="204" y1="93" x2="204" y2="101" stroke="currentColor" strokeOpacity="0.6" />
-      {/* Far Wing Outboard Engine (Engine 4) */}
-      <line x1="245" y1="88" x2="245" y2="79" stroke="currentColor" />
-      <path d="M 236 76 L 252 76 L 256 80 L 252 84 L 236 84 Z" stroke="currentColor" />
-      <line x1="236" y1="76" x2="236" y2="84" stroke="currentColor" strokeOpacity="0.6" />
-
-      {/* Cabin Window Detailing for 747 Aesthetic */}
-      {/* Upper Deck Passenger Windows */}
-      <line x1="100" y1="114" x2="165" y2="114" stroke="currentColor" strokeDasharray="2,2" strokeOpacity="0.6" />
-      {/* Main Deck Passenger Windows */}
-      <line x1="80" y1="135" x2="390" y2="135" stroke="currentColor" strokeDasharray="2,3" strokeOpacity="0.6" />
-      {/* Cockpit Windshield */}
-      <polygon points="74,114 81,110 85,114" fill="currentColor" fillOpacity="0.8" stroke="currentColor" />
-      {/* Nose Cone (Radome) Cut Line */}
-      <path d="M 52 133 C 52 135, 51 142, 51 145" stroke="currentColor" strokeOpacity="0.5" />
-
-      {/* Technical grid markings & callouts */}
-      <line x1="20" y1="140" x2="480" y2="140" stroke="currentColor" strokeDasharray="3,6" strokeOpacity="0.3" />
-      <line x1="180" y1="40" x2="180" y2="220" stroke="currentColor" strokeDasharray="3,6" strokeOpacity="0.3" />
-      {/* Measurements text */}
-      <text x="30" y="70" className="font-mono text-[9px] fill-current" opacity="0.65" stroke="none">L: 76.3m (B747-8)</text>
-      <text x="30" y="82" className="font-mono text-[9px] fill-current" opacity="0.65" stroke="none">SPAN: 68.4m</text>
-      <text x="30" y="55" className="font-mono text-[10px] fill-current font-bold tracking-wider" stroke="none">BOEING 747-8 SCHEMATIC</text>
-      
-      <circle cx="210" cy="178" r="5" stroke="currentColor" strokeDasharray="1,1" strokeOpacity="0.5" />
-      <circle cx="255" cy="201" r="5" stroke="currentColor" strokeDasharray="1,1" strokeOpacity="0.5" />
-    </svg>
-  );
-}
-
 export default function App() {
-  const sectionRef = React.useRef(null);
   const [isGravityActive, setIsGravityActive] = React.useState(false);
   const [resetCounter, setResetCounter] = React.useState(0);
-  const [hoveredIcebreaker, setHoveredIcebreaker] = React.useState(null);
 
   // Refs and motion values for independent split scroll gravity physics
   const targetScrollY = React.useRef(0);
@@ -140,6 +81,8 @@ export default function App() {
   // Unified document height tracking for lazy-loaded element scrollbar syncing
   const [documentHeight, setDocumentHeight] = React.useState(5200); // stable desktop placeholder
   const contentRef = React.useRef(null);
+
+
 
   React.useEffect(() => {
     const handleMouseMove = (e) => {
@@ -547,162 +490,7 @@ export default function App() {
     );
   };
 
-  const renderIcebreakers = (colorClass) => {
-    return (
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-12 w-full relative z-10">
-        <div className="text-center mb-16 select-none pointer-events-none flex flex-col items-center">
-          <h2 className={`font-mono text-sm tracking-widest mb-3 font-black uppercase ${colorClass}`}>
-            // START A CONVERSATION
-          </h2>
-          <h3 className={`text-4xl md:text-6xl font-display font-black tracking-tight mb-4 ${colorClass}`}>
-            The Icebreakers.
-          </h3>
-          <p className={`text-sm md:text-base max-w-2xl font-light leading-relaxed opacity-75 mx-auto ${colorClass}`}>
-            If we haven't met yet, bypassing the awkward small talk is incredibly simple. Just bring up any of these three topics and I'll open up.
-          </p>
-        </div>
 
-        <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-3 gap-2 sm:gap-6 md:gap-8 items-stretch">
-          {/* Card 1: Car Talk (Left Column) - Drops 3rd */}
-          <div className="relative overflow-visible h-full">
-            <motion.div
-              style={{ y: card1DropY, opacity: card1DropOpacity, scale: card1DropScale }}
-              className="w-full h-full"
-            >
-              <motion.div
-                onMouseEnter={() => setHoveredIcebreaker(1)}
-                onMouseLeave={() => setHoveredIcebreaker(null)}
-                animate={{
-                  y: hoveredIcebreaker === 1 ? -8 : 0,
-                  boxShadow: hoveredIcebreaker === 1
-                    ? '0 15px 35px rgba(255, 255, 255, 0.08)'
-                    : '0px 0px 0px rgba(0,0,0,0)'
-                }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
-              >
-                <div className="flex flex-col gap-3 sm:gap-5">
-                  <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
-                    <path d="M 10 55 L 25 50 L 45 42 C 55 38, 65 28, 85 26 C 110 24, 135 24, 155 32 L 175 38 C 185 42, 192 46, 195 55 L 190 60 L 170 60 C 168 48, 148 48, 146 60 L 54 60 C 52 48, 32 48, 30 60 L 10 60 Z" stroke="currentColor" strokeDasharray="4,4" />
-                    <circle cx="42" cy="60" r="10" stroke="currentColor" />
-                    <circle cx="158" cy="60" r="10" stroke="currentColor" />
-                    <circle cx="158" cy="60" r="3" stroke="currentColor" />
-                  </svg>
-                  <div>
-                    <div className="font-mono text-[7px] sm:text-[9px] uppercase tracking-widest mb-1 sm:mb-1.5 font-bold opacity-85">
-                      ICEBREAKER_01 // CARS
-                    </div>
-                    <h4 className="text-sm sm:text-lg md:text-xl font-display font-black mb-1 sm:mb-2">Car Talk</h4>
-                    <p className="opacity-70 text-[9px] sm:text-xs md:text-sm leading-normal sm:leading-relaxed font-light">
-                      Want to skip the standard introduction? I love talking about all cars, from favorite road trip drives to classic station wagons and mechanical differentials.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="border-t border-white/10 pt-2 sm:pt-4 flex items-center justify-between">
-                  <span className="text-[7px] sm:text-[9px] font-mono opacity-50 uppercase"></span>
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-current animate-pulse" />
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Card 2: Aircraft Spotting (Middle Column) - Drops 2nd */}
-          <div className="relative overflow-visible h-full">
-            <motion.div
-              style={{ y: card2DropY, opacity: card2DropOpacity, scale: card2DropScale }}
-              className="w-full h-full"
-            >
-              <motion.div
-                onMouseEnter={() => setHoveredIcebreaker(2)}
-                onMouseLeave={() => setHoveredIcebreaker(null)}
-                animate={{
-                  y: hoveredIcebreaker === 2 ? -8 : 0,
-                  boxShadow: hoveredIcebreaker === 2
-                    ? '0 15px 35px rgba(229, 91, 109, 0.08)'
-                    : '0px 0px 0px rgba(0,0,0,0)'
-                }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
-              >
-                <div className="flex flex-col gap-3 sm:gap-5">
-                  <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
-                    <path d="M 20 40 L 40 38 L 70 38 L 105 22 L 120 22 L 110 38 L 160 38 L 175 28 L 182 28 L 178 38 C 185 40, 185 42, 178 44 L 160 44 L 175 54 L 168 54 L 150 44 L 110 44 L 120 60 L 105 60 L 70 44 L 40 44 L 20 40 Z" stroke="currentColor" strokeDasharray="4,4" />
-                    <path d="M 45 38 C 50 30, 60 30, 65 38" stroke="currentColor" />
-                    <circle cx="55" cy="46" r="3" stroke="currentColor" />
-                  </svg>
-                  <div>
-                    <div className="font-mono text-[7px] sm:text-[9px] uppercase tracking-widest mb-1 sm:mb-1.5 font-bold opacity-85">
-                      ICEBREAKER_02 // AIRCRAFT
-                    </div>
-                    <h4 className="text-sm sm:text-lg md:text-xl font-display font-black mb-1 sm:mb-2">Aircraft Spotting</h4>
-                    <p className="opacity-75 text-[9px] sm:text-xs md:text-sm leading-normal sm:leading-relaxed font-light">
-                      I just drop whatever I'm up to and watch them land. Bring up an Airbus A350 or a Boeing 777-300ER, and I'll talk for hours.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="border-t border-white/10 pt-2 sm:pt-4 flex items-center justify-between">
-                  <span className="text-[7px] sm:text-[9px] font-mono opacity-50 uppercase"></span>
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-current animate-pulse" />
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Card 3: AI & Machine Learning (Right Column) - Drops 1st */}
-          <div className="relative overflow-visible h-full">
-            <motion.div
-              style={{ y: card3DropY, opacity: card3DropOpacity, scale: card3DropScale }}
-              className="w-full h-full"
-            >
-              <motion.div
-                onMouseEnter={() => setHoveredIcebreaker(3)}
-                onMouseLeave={() => setHoveredIcebreaker(null)}
-                animate={{
-                  y: hoveredIcebreaker === 3 ? -8 : 0,
-                  boxShadow: hoveredIcebreaker === 3
-                    ? '0 15px 35px rgba(255, 255, 255, 0.08)'
-                    : '0px 0px 0px rgba(0,0,0,0)'
-                }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
-              >
-                <div className="flex flex-col gap-3 sm:gap-5">
-                  <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
-                    <circle cx="30" cy="40" r="6" stroke="currentColor" />
-                    <circle cx="80" cy="20" r="6" stroke="currentColor" />
-                    <circle cx="80" cy="60" r="6" stroke="currentColor" />
-                    <circle cx="130" cy="20" r="6" stroke="currentColor" />
-                    <circle cx="130" cy="60" r="6" stroke="currentColor" />
-                    <circle cx="170" cy="40" r="6" stroke="currentColor" />
-                    <line x1="36" y1="38" x2="74" y2="22" stroke="currentColor" strokeDasharray="3,3" />
-                    <line x1="36" y1="42" x2="74" y2="58" stroke="currentColor" strokeDasharray="3,3" />
-                    <line x1="86" y1="20" x2="124" y2="20" stroke="currentColor" />
-                    <line x1="86" y1="60" x2="124" y2="60" stroke="currentColor" />
-                  </svg>
-                  <div>
-                    <div className="font-mono text-[7px] sm:text-[9px] uppercase tracking-widest mb-1 sm:mb-1.5 font-bold opacity-85">
-                      ICEBREAKER_03 // MACHINE_LEARNING
-                    </div>
-                    <h4 className="text-sm sm:text-lg md:text-xl font-display font-black mb-1 sm:mb-2">AI & Machine Learning</h4>
-                    <p className="opacity-70 text-[9px] sm:text-xs md:text-sm leading-normal sm:leading-relaxed font-light">
-                      Ask me about model weight collapse, training losses of multi-billion parameter networks, or whether gradient descent is just premium guessing. I will talk for hours.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="border-t border-white/10 pt-2 sm:pt-4 flex items-center justify-between">
-                  <span className="text-[7px] sm:text-[9px] font-mono opacity-50 uppercase"></span>
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-current animate-pulse" />
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const renderAIProjects = (colorClass) => {
     return (
@@ -713,8 +501,8 @@ export default function App() {
           </h2>
           <h3 className={`text-4xl md:text-6xl font-display font-black tracking-tighter mb-4 ${colorClass} leading-tight`}>
             Oh, and by the way...<br />
-            <span className="text-outline font-sans font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide uppercase text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-              I'm an AI Engineer.
+            <span className="font-gellix font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+              I'm an AI Engineer
             </span>
           </h3>
           <p className={`text-sm md:text-base font-light opacity-75 ${colorClass}`}>
@@ -880,26 +668,21 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isGravityActive, documentHeight]);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef, // in standard scrolling flow
-    offset: ["start end", "end start"]
+  const scrollYProgress = useTransform(leftTransformY, (y) => {
+    const scrollY = -y;
+    const start = 180; // Calibrated to drop before middle of screen
+    const end = 1100;
+    const progress = (scrollY - start) / (end - start);
+    return Math.max(0, Math.min(progress, 1));
   });
 
-  // Transform scroll progress to horizontal coordinates (moves right-to-left as user scrolls past)
-  const planeX = useTransform(scrollYProgress, [0, 1], ["90vw", "-120vw"]);
+  const planeProgress = useSpring(scrollYProgress, {
+    stiffness: 45,
+    damping: 20,
+    mass: 1.2
+  });
 
-  // Scroll-linked parachuting card drops in order as the plane flies right-to-left
-  const card3DropY = useTransform(scrollYProgress, [0.08, 0.28], [-220, 0]);
-  const card3DropOpacity = useTransform(scrollYProgress, [0.08, 0.24], [0, 1]);
-  const card3DropScale = useTransform(scrollYProgress, [0.08, 0.28], [0.75, 1]);
-
-  const card2DropY = useTransform(scrollYProgress, [0.16, 0.36], [-220, 0]);
-  const card2DropOpacity = useTransform(scrollYProgress, [0.16, 0.32], [0, 1]);
-  const card2DropScale = useTransform(scrollYProgress, [0.16, 0.36], [0.75, 1]);
-
-  const card1DropY = useTransform(scrollYProgress, [0.24, 0.44], [-220, 0]);
-  const card1DropOpacity = useTransform(scrollYProgress, [0.24, 0.40], [0, 1]);
-  const card1DropScale = useTransform(scrollYProgress, [0.24, 0.44], [0.75, 1]);
+  const planeX = useTransform(planeProgress, [0, 1], ["120vw", "-120vw"]);
 
   // Unified Full-Page layout builder that is rendered inside viewports (and measurer)
   const renderFullPage = (colorClass, isDummy = false, customTransformY = null) => {
@@ -951,26 +734,13 @@ export default function App() {
         </section>
 
         {/* SECTION 2: THE ICEBREAKERS (DYNAMIC ENTRANCE BLUEPRINTS + STATIC CONVERSATION CARDS) */}
-        <section 
-          ref={isDummy ? sectionRef : null}
-          className="py-32 relative z-10 border-t border-white/10 overflow-hidden bg-transparent"
-        >
-          {/* Huge Aircraft Blueprint - Scroll-linked Flyby */}
-          <div 
-            style={isGravityActive ? { display: 'none' } : {}}
-            className={`absolute inset-0 overflow-hidden pointer-events-none select-none -z-10 ${colorClass}`}
-          >
-            <div className="w-screen relative">
-              <motion.div style={{ x: planeX }} className="w-full">
-                <B747Schematic />
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="relative w-full">
-            {renderIcebreakers(colorClass)}
-          </div>
-        </section>
+        <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING SYSTEM ICEBREAKERS" />}>
+          <IcebreakerBlock 
+            customTransformY={customTransformY} 
+            colorClass={colorClass} 
+            isGravityActive={isGravityActive} 
+          />
+        </React.Suspense>
 
         {/* SECTION 3: THE PROBLEM SOLVER */}
         <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING PROBLEM SOLVER INTERACTIVE" />}>
@@ -1047,6 +817,41 @@ export default function App() {
           className="w-[100vw] h-auto absolute top-0 text-dark-coral border-dark-coral"
         >
           {renderFullPage("text-dark-coral border-dark-coral", false, rightTransformY)}
+        </motion.div>
+      </div>
+
+      {/* GLOBAL SINGLE AIRCRAFT FLYBY (COLOR SHIFTS DYNAMICALLY ACROSS CENTER SEPARATOR LINE) */}
+      {/* Left side fixed viewport clipped at 50vw */}
+      <div 
+        style={isGravityActive ? { display: 'none' } : {}}
+        className="fixed left-0 top-0 w-[50vw] h-screen overflow-hidden pointer-events-none select-none z-10"
+      >
+        <motion.div 
+          style={{ y: leftTransformY }} 
+          className="w-[100vw] h-auto absolute left-0 top-0 text-light-pink pointer-events-none"
+        >
+          <div className="absolute top-[100vh] left-0 w-[100vw] h-[300px] overflow-hidden pointer-events-none">
+            <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
+              <B747Schematic />
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Right side fixed viewport clipped at 50vw, offset left by -50vw */}
+      <div 
+        style={isGravityActive ? { display: 'none' } : {}}
+        className="fixed left-[50vw] top-0 w-[50vw] h-screen overflow-hidden pointer-events-none select-none z-10"
+      >
+        <motion.div 
+          style={{ y: leftTransformY, left: '-50vw' }} 
+          className="w-[100vw] h-auto absolute top-0 text-dark-coral pointer-events-none"
+        >
+          <div className="absolute top-[100vh] left-0 w-[100vw] h-[300px] overflow-hidden pointer-events-none">
+            <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
+              <B747Schematic />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
 
