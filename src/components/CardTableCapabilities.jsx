@@ -1,6 +1,64 @@
 import React from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 
+function AsyncVideo({ src, className, isGravityActive }) {
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [hasError, setHasError] = React.useState(false);
+  const videoRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [src]);
+
+  return (
+    <div className="absolute inset-0 w-full h-full bg-black/40 overflow-hidden relative">
+      {hasError ? (
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-[#1e1e24] text-white/40 select-none">
+          <svg className="w-10 h-10 mb-2 stroke-[1.5] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+          <span className="font-mono text-[9px] tracking-widest uppercase">// SOURCE_OFFLINE //</span>
+        </div>
+      ) : (
+        <video 
+          ref={videoRef}
+          className={`${className} transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-70 group-hover:opacity-90'}`}
+          src={src}
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          preload="metadata"
+          onWaiting={() => setIsLoading(true)}
+          onPlaying={() => setIsLoading(false)}
+          onCanPlay={() => setIsLoading(false)}
+          onError={() => setHasError(true)}
+        />
+      )}
+
+      {isLoading && !hasError && (
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/60 backdrop-blur-[2px] z-20 pointer-events-none select-none">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border border-dashed border-[#E55B6C]/50 rounded-xl flex items-center justify-center animate-spin" style={{ animationDuration: '6s' }}>
+              <div className="w-4 h-4 border border-[#FFD1DC]/40 rounded-lg animate-pulse" />
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-mono text-[8px] text-[#E55B6C]/80 tracking-[0.25em] uppercase animate-pulse">
+                STREAMING_ASSET
+              </span>
+              <span className="font-mono text-[7px] text-white/30 tracking-[0.2em]">
+                // BUFFERING //
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CardTableCapabilities({ isGravityActive, customTransformY }) {
   const containerRef = React.useRef(null);
   const [focusedMobileCard, setFocusedMobileCard] = React.useState(null);
@@ -301,13 +359,10 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                     </div>
                     {/* Screen content */}
                     <div className="flex-1 relative flex items-center justify-center overflow-hidden">
-                      <video 
-                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-70 group-hover:opacity-90 transition-opacity duration-500"
-                        src="/raw_rec.mp4"
-                        autoPlay 
-                        loop 
-                        muted 
-                        playsInline
+                      <AsyncVideo 
+                        src="https://res.cloudinary.com/doqzzziw0/video/upload/q_auto/f_auto/v1780165372/InShot_20260530_232946203_m3qsgb.mp4"
+                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        isGravityActive={isGravityActive}
                       />
                       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] mix-blend-overlay z-10 pointer-events-none"></div>
                       
@@ -498,13 +553,10 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                       </div>
                     </div>
                     <div className="flex-1 relative overflow-hidden flex items-center justify-center">
-                      <video 
-                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
-                        src="/raw_rec.mp4"
-                        autoPlay 
-                        loop 
-                        muted 
-                        playsInline
+                      <AsyncVideo 
+                        src="https://res.cloudinary.com/doqzzziw0/video/upload/q_auto/f_auto/v1780165372/InShot_20260530_232946203_m3qsgb.mp4"
+                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        isGravityActive={isGravityActive}
                       />
                       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] mix-blend-overlay z-10 pointer-events-none"></div>
                       
