@@ -130,12 +130,13 @@ export default function App() {
       const currentScroll = targetScrollY.current;
       const maxScroll = documentHeight - window.innerHeight;
       
-      const distToEdge = Math.min(currentScroll, maxScroll - currentScroll);
-      let speedMultiplier = 0.55;
+      // Only cushion the bottom edge to smoothly transition into gravity sandbox
+      const distToBottom = maxScroll - currentScroll;
+      let speedMultiplier = 0.65; // Snappier, responsive scroll speed
 
-      if (distToEdge < 300) {
-        const ratio = Math.max(0, distToEdge / 300);
-        speedMultiplier = 0.15 + 0.40 * ratio; // slow deceleration cushioning
+      if (distToBottom < 300) {
+        const ratio = Math.max(0, distToBottom / 300);
+        speedMultiplier = 0.18 + 0.47 * ratio; // slow deceleration cushioning at bottom
       }
 
       const step = e.deltaY * speedMultiplier;
