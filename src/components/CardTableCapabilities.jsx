@@ -557,7 +557,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
     return (
       <section 
         ref={containerRef} 
-        className="pt-16 pb-12 relative bg-transparent border-t border-white/10 overflow-hidden"
+        className="pt-16 pb-12 relative bg-transparent overflow-hidden"
         onClick={handleTabletopClick}
       >
         {/* Table Felt Backdrops & Blueprint Grid Overlay */}
@@ -572,7 +572,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
   return (
     <section 
       ref={containerRef} 
-      className="pt-24 pb-12 relative bg-transparent border-t border-white/10 overflow-hidden"
+      className="pt-24 pb-12 relative bg-transparent overflow-hidden"
       onClick={handleTabletopClick}
     >
       {/* Table Felt Backdrops & Blueprint Grid Overlay */}

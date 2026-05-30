@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, animate } from 'framer-motion';
 
 // 6-Stage Evolution Configuration (Omitting Years & Descriptions)
 const STAGES = [
@@ -155,7 +155,7 @@ function MilestoneNode({ stage, pathLength }) {
 }
 
 
-export default function EvolutionPath({ customTransformY }) {
+export default function EvolutionPath({ customTransformY, isSnapping }) {
   const containerRef = React.useRef(null);
   const boundsRef = React.useRef({ start: 2700, end: 4000 });
 
@@ -409,10 +409,10 @@ export default function EvolutionPath({ customTransformY }) {
     return (
       <section 
         ref={containerRef}
-        className="w-full flex flex-col justify-center items-center relative bg-transparent border-t border-white/10 overflow-hidden pt-12 pb-24 px-0"
+        className="w-full flex flex-col justify-center items-center relative bg-transparent overflow-hidden pt-12 pb-24 px-0"
       >
         <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
-        <div className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 border-y border-white/10 relative">
+        <div className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 relative">
           <div className="w-full px-4 text-light-pink stroke-light-pink fill-light-pink">
             {renderTimelineContent("text-light-pink")}
           </div>
@@ -424,7 +424,7 @@ export default function EvolutionPath({ customTransformY }) {
   return (
     <section 
       ref={containerRef}
-      className="w-full flex flex-col justify-center items-center relative bg-transparent border-t border-white/10 overflow-hidden pt-12 pb-24 px-0"
+      className="w-full flex flex-col justify-center items-center relative bg-transparent overflow-hidden pt-12 pb-24 px-0"
     >
       <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
 
@@ -435,7 +435,7 @@ export default function EvolutionPath({ customTransformY }) {
           rotateX,
           transformStyle: "preserve-3d"
         }}
-        className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 border-y border-white/10 relative"
+        className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 relative"
       >
         <div className="relative w-full">
           {/* Layout Driver (Invisible) */}

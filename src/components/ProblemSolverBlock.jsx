@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, animate } from 'framer-motion';
 
-export default function ProblemSolverBlock({ customTransformY }) {
+export default function ProblemSolverBlock({ customTransformY, isSnapping }) {
   const containerRef = React.useRef(null);
   
   // Track currently hovered term in the copywriting below to connect with visual elements above
@@ -177,7 +177,7 @@ export default function ProblemSolverBlock({ customTransformY }) {
     return (
       <section 
         ref={containerRef}
-        className="pt-16 pb-20 relative z-10 border-t border-b border-white/10 overflow-hidden w-full bg-transparent"
+        className="pt-16 pb-20 relative z-10 overflow-hidden w-full bg-transparent"
       >
         <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
         <div className="w-full relative text-light-pink">
@@ -193,7 +193,7 @@ export default function ProblemSolverBlock({ customTransformY }) {
   return (
     <section 
       ref={containerRef}
-      className="pt-24 pb-32 relative z-10 border-t border-b border-white/10 overflow-hidden w-full bg-transparent"
+      className="pt-24 pb-32 relative z-10 overflow-hidden w-full bg-transparent"
     >
       <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
 

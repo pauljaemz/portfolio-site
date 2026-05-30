@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 
 export default function IcebreakerBlock({ customTransformY, colorClass, isGravityActive, sectionRef }) {
   const localRef = React.useRef(null);
@@ -34,25 +34,32 @@ export default function IcebreakerBlock({ customTransformY, colorClass, isGravit
 
   const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
+  // Smooth out card drops using a slow, premium spring so they glide down gracefully even during snapping
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 15,
+    damping: 18,
+    mass: 1.5
+  });
+
   // Scroll-linked parachuting card drops in order as the plane flies right-to-left
   // Synchronized to match the B747's spring-glide overhead sweep with a premium Y height
   const dropOffset = isMobile ? -40 : -300;
-  const card3DropY = useTransform(scrollYProgress, [0.25, 0.45], [dropOffset, 0]);
-  const card3DropOpacity = useTransform(scrollYProgress, [0.25, 0.40], [0, 1]);
-  const card3DropScale = useTransform(scrollYProgress, [0.25, 0.45], [0.75, 1]);
+  const card3DropY = useTransform(smoothProgress, [0.25, 0.45], [dropOffset, 0]);
+  const card3DropOpacity = useTransform(smoothProgress, [0.25, 0.40], [0, 1]);
+  const card3DropScale = useTransform(smoothProgress, [0.25, 0.45], [0.75, 1]);
 
-  const card2DropY = useTransform(scrollYProgress, [0.35, 0.55], [dropOffset, 0]);
-  const card2DropOpacity = useTransform(scrollYProgress, [0.35, 0.50], [0, 1]);
-  const card2DropScale = useTransform(scrollYProgress, [0.35, 0.55], [0.75, 1]);
+  const card2DropY = useTransform(smoothProgress, [0.35, 0.55], [dropOffset, 0]);
+  const card2DropOpacity = useTransform(smoothProgress, [0.35, 0.50], [0, 1]);
+  const card2DropScale = useTransform(smoothProgress, [0.35, 0.55], [0.75, 1]);
 
-  const card1DropY = useTransform(scrollYProgress, [0.45, 0.65], [dropOffset, 0]);
-  const card1DropOpacity = useTransform(scrollYProgress, [0.45, 0.60], [0, 1]);
-  const card1DropScale = useTransform(scrollYProgress, [0.45, 0.65], [0.75, 1]);
+  const card1DropY = useTransform(smoothProgress, [0.45, 0.65], [dropOffset, 0]);
+  const card1DropOpacity = useTransform(smoothProgress, [0.45, 0.60], [0, 1]);
+  const card1DropScale = useTransform(smoothProgress, [0.45, 0.65], [0.75, 1]);
 
   return (
     <section 
       ref={activeRef}
-      className="py-32 relative z-10 border-t border-white/10 overflow-hidden bg-transparent w-full"
+      className="py-32 relative z-10 overflow-hidden bg-transparent w-full"
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-12 w-full relative z-10">
         <div className="text-center mb-16 select-none pointer-events-none flex flex-col items-center">

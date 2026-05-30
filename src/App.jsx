@@ -77,6 +77,13 @@ export default function App() {
   const [isGravityActive, setIsGravityActive] = React.useState(false);
   const [resetCounter, setResetCounter] = React.useState(0);
 
+  // Snapping state to track transition status and pass down to child components
+  const [isSnapping, setIsSnapping] = React.useState(false);
+
+  // Unified document height tracking for lazy-loaded element scrollbar syncing
+  const [documentHeight, setDocumentHeight] = React.useState(5200); // stable desktop placeholder
+  const contentRef = React.useRef(null);
+
   // Refs and motion values for independent split scroll gravity physics
   const targetScrollY = React.useRef(0);
   const leftYRef = React.useRef(0);
@@ -87,12 +94,57 @@ export default function App() {
   const leftTransformY = useMotionValue(0);
   const rightTransformY = useMotionValue(0);
 
+  // Snapping refs for velocity tracking & trackpad inertial cushioning
+  const lastSnapTime = React.useRef(0);
+  const wheelAccumulator = React.useRef(0);
+  const accumulatorTimeout = React.useRef(null);
+
+  // Dynamically compute exact scroll coordinates to center-align each section in the viewport
+  const getSnapPoints = React.useCallback(() => {
+    if (!contentRef.current) return [0, 1000, 1600, 2480, 3600, 4400]; // highly calibrated desktop fallbacks
+    
+    try {
+      const sections = contentRef.current.querySelectorAll('section');
+      if (sections.length < 6) {
+        return [0, 1000, 1600, 2480, 3600, 4400];
+      }
+      
+      const vh = window.innerHeight;
+      
+      // Section 2 (Icebreakers): center aligned
+      const icebreaker = sections[1];
+      const snap1 = icebreaker.offsetTop - (vh - icebreaker.offsetHeight) / 2;
+      
+      // Section 3 (Problem Solver): center aligned (pushed slightly down for perfect vertical center balance)
+      const problemSolver = sections[2];
+      const snap2 = problemSolver.offsetTop - (vh - problemSolver.offsetHeight) / 2 - 80;
+      
+      // Section 4 (Capabilities): exact calibrated snapping point for initial 2 cards deal
+      const snap3 = 2480;
+      
+      // Section 5 (Timeline): center aligned (pushed slightly down for aesthetic center balance)
+      const timeline = sections[4];
+      const snap4 = timeline.offsetTop - (vh - timeline.offsetHeight) / 2 - 10;
+      
+      // Section 6 (AI Engineer): exact calibrated crop stop showing 1st row beautifully with heading tiny bit to top
+      const aiProjects = sections[5];
+      const snap5 = aiProjects.offsetTop - 80;
+      
+      return [
+        0, 
+        Math.round(snap1), 
+        Math.round(snap2), 
+        snap3, 
+        Math.round(snap4), 
+        Math.round(snap5)
+      ];
+    } catch (e) {
+      return [0, 1000, 1600, 2480, 3600, 4400];
+    }
+  }, [documentHeight]);
+
   // Column mouse tracking state ('left' or 'right')
   const [hoveredColumn, setHoveredColumn] = React.useState('left');
-
-  // Unified document height tracking for lazy-loaded element scrollbar syncing
-  const [documentHeight, setDocumentHeight] = React.useState(5200); // stable desktop placeholder
-  const contentRef = React.useRef(null);
 
 
 
@@ -131,7 +183,7 @@ export default function App() {
     };
   }, []);
 
-  // Wheel Scroll Intercept (instant reduced-speed + dynamic edge boundary cushioning)
+  // Hybrid Snapping Scroll Intercept (hard scroll snaps, gentle scroll glides normally)
   React.useEffect(() => {
     if (typeof window === 'undefined' || window.matchMedia('(hover: none)').matches) {
       return;
@@ -139,16 +191,69 @@ export default function App() {
 
     const handleWheel = (e) => {
       e.preventDefault();
+      
+      const now = Date.now();
+      const cooldown = 850; // time window to freeze inputs after a snap to absorb trackpad inertia
+      
+      // 1. Freeze inputs during snap transitions
+      if (now - lastSnapTime.current < cooldown) {
+        return;
+      }
+
+      const absDelta = Math.abs(e.deltaY);
+
+      // 2. Accumulate wheel delta inside a short rolling window only if it's not a slow manual crawl
+      if (absDelta < 35) {
+        wheelAccumulator.current = 0;
+      } else {
+        wheelAccumulator.current += e.deltaY;
+      }
+
+      if (accumulatorTimeout.current) {
+        clearTimeout(accumulatorTimeout.current);
+      }
+      accumulatorTimeout.current = setTimeout(() => {
+        wheelAccumulator.current = 0;
+      }, 100);
+
+      const absAccum = Math.abs(wheelAccumulator.current);
+
+      // 3. SNAPPING MECHANISM: Triggered on high velocity/hard flick-scrolls
+      const isInsideCapabilities = targetScrollY.current >= 1750 && targetScrollY.current <= 3400;
+
+      if ((absDelta > 80 || absAccum > 160) && !isInsideCapabilities) {
+        const dir = Math.sign(absAccum > 160 ? wheelAccumulator.current : e.deltaY);
+        const points = getSnapPoints();
+        
+        let targetPoint = null;
+        if (dir > 0) {
+          // Snap downwards to the next section
+          targetPoint = points.find(p => p > targetScrollY.current + 30);
+        } else if (dir < 0) {
+          // Snap upwards to the previous section (reverse search)
+          targetPoint = [...points].reverse().find(p => p < targetScrollY.current - 30);
+        }
+
+        if (targetPoint !== undefined && targetPoint !== null) {
+          targetScrollY.current = targetPoint;
+          lastSnapTime.current = now;
+          wheelAccumulator.current = 0;
+          setIsSnapping(true); // set snap active state to decelerate Lerp and freeze settled animations
+          window.scrollTo(0, targetScrollY.current);
+          return;
+        }
+      }
+
+      // 4. GENTLE GLIDING MECHANISM: low velocity, normal scrolling
       const currentScroll = targetScrollY.current;
       const maxScroll = documentHeight - window.innerHeight;
       
-      // Only cushion the bottom edge to smoothly transition into gravity sandbox
       const distToBottom = maxScroll - currentScroll;
-      let speedMultiplier = 0.65; // Snappier, responsive scroll speed
+      let speedMultiplier = 0.65; // Responsive, snappy manual scroll speed
 
       if (distToBottom < 300) {
         const ratio = Math.max(0, distToBottom / 300);
-        speedMultiplier = 0.18 + 0.47 * ratio; // slow deceleration cushioning at bottom
+        speedMultiplier = 0.18 + 0.47 * ratio; // slow deceleration edge cushioning at bottom
       }
 
       const step = e.deltaY * speedMultiplier;
@@ -161,7 +266,7 @@ export default function App() {
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [documentHeight]);
+  }, [documentHeight, isMobile, getSnapPoints]);
 
   // Sync target Y when scrollbar dragging or key presses scroll the window
   React.useEffect(() => {
@@ -185,7 +290,7 @@ export default function App() {
       const damping = 0.125;    
       const drag = 0.830;       
       
-      const activeLerp = 0.15;  
+      const activeLerp = isSnapping ? 0.08 : 0.15;  
       
       if (hoveredColumn === 'left') {
         leftYRef.current += (target - leftYRef.current) * activeLerp;
@@ -209,6 +314,13 @@ export default function App() {
       
       leftTransformY.set(-leftYRef.current);
       rightTransformY.set(-rightYRef.current);
+
+      if (isSnapping) {
+        const activeY = hoveredColumn === 'left' ? leftYRef.current : rightYRef.current;
+        if (Math.abs(target - activeY) < 1.0) {
+          setIsSnapping(false);
+        }
+      }
       
       requestAnimationFrame(physicsLoop);
     };
@@ -217,7 +329,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [hoveredColumn]);
+  }, [hoveredColumn, isSnapping]);
 
   const renderFloatingAssets = (colorClass) => {
     return (
@@ -509,16 +621,13 @@ export default function App() {
     return (
       <div className="w-full max-w-none mx-0 relative z-10 px-6 md:px-12 lg:px-20">
         <motion.div {...fadeInUp} className="mb-20 w-full text-left select-none pointer-events-none flex flex-col items-start">
-          <h2 className={`font-mono text-sm tracking-widest mb-3 font-black uppercase ${colorClass}`}>
-            // EXPERIMENTAL LABS // AI ENGINEERING
-          </h2>
           <h3 className={`text-4xl md:text-6xl font-display font-black tracking-tighter mb-4 ${colorClass} leading-tight`}>
             Oh, and by the way...<br />
-            <span className="font-gellix font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+            <span className="font-gellix font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide text-3xl sm:text-[38px] md:text-[46px] lg:text-[54px]">
               I'm an AI Engineer
             </span>
           </h3>
-          <p className={`text-sm md:text-base font-light opacity-75 ${colorClass}`}>
+          <p className={`text-base sm:text-lg md:text-xl font-black opacity-75 ${colorClass}`}>
             I teach machines to think.
           </p>
         </motion.div>
@@ -693,9 +802,9 @@ export default function App() {
   );
 
   const planeProgress = useSpring(scrollYProgress, {
-    stiffness: 45,
-    damping: 20,
-    mass: 1.2
+    stiffness: 15,
+    damping: 18,
+    mass: 1.5
   });
 
   const planeX = useTransform(planeProgress, [0, 1], ["120vw", "-120vw"]);
@@ -760,7 +869,7 @@ export default function App() {
 
         {/* SECTION 3: THE PROBLEM SOLVER */}
         <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING PROBLEM SOLVER INTERACTIVE" />}>
-          <ProblemSolverBlock customTransformY={customTransformY} />
+          <ProblemSolverBlock customTransformY={customTransformY} isSnapping={isSnapping} />
         </React.Suspense>
 
         {/* SECTION 4: OPERATING CAPABILITIES (SCROLL-DRIVEN CARD TABLE) */}
@@ -770,11 +879,11 @@ export default function App() {
 
         {/* SECTION 5: THE TIMELINE (CURVED S-CURVE PATH) */}
         <React.Suspense fallback={<TechSkeleton height="600px" label="ASSEMBLING EVOLUTION GRAPH TIMELINE" />}>
-          <EvolutionPath customTransformY={customTransformY} />
+          <EvolutionPath customTransformY={customTransformY} isSnapping={isSnapping} />
         </React.Suspense>
 
         {/* SECTION 6: AI ENGINEER (GRAND FINALE) */}
-        <section className="py-40 px-0 bg-transparent relative overflow-hidden border-t border-white/10">
+        <section className="py-40 px-0 bg-transparent relative overflow-hidden">
           <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
           <div className="relative w-full">
             {renderAIProjects(colorClass)}
@@ -782,7 +891,7 @@ export default function App() {
         </section>
 
         {/* FOOTER */}
-        <footer className="py-24 px-0 border-t border-white/10 bg-transparent relative">
+        <footer className="py-24 px-0 bg-transparent relative">
           <div className="relative w-full">
             {renderFooter(colorClass)}
           </div>
@@ -793,44 +902,38 @@ export default function App() {
 
   if (isMobile) {
     return (
-      <main className={`min-h-screen bg-transparent selection:bg-white/20 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
-        <CustomCursor />
+      <main className="min-h-screen bg-[#E55B6C] flex flex-col justify-center items-center px-8 text-center relative select-none font-sans overflow-hidden">
+        {/* Technical Dotted Grid Backdrop */}
+        <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
+        
+        {/* Glowing floating decorative circles */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-black/10 rounded-full blur-[100px] pointer-events-none" />
 
-        {/* FIXED SINGLE BG */}
-        <div className="fixed inset-0 bg-[#E55B6C] -z-20 pointer-events-none" />
-
-        {/* DUMMY SCROLL REFERENCE CONTAINER (needed to keep contentRef and height checks operational) */}
-        <div className="absolute top-0 left-0 w-full opacity-0 pointer-events-none -z-50 overflow-hidden" style={{ height: 'auto' }}>
-          <div ref={contentRef} className="w-full h-auto">
-            {renderFullPage("", true)}
+        <div className="max-w-md w-full border border-white/20 p-8 sm:p-10 rounded-3xl bg-white/5 backdrop-blur-md shadow-2xl relative z-10 flex flex-col items-center gap-6">
+          <div className="w-16 h-16 border border-dashed border-white/50 rounded-2xl flex items-center justify-center animate-pulse">
+            <span className="font-mono text-lg text-white/80">[!]</span>
           </div>
+          
+          <div className="flex flex-col gap-2">
+            <h1 className="font-display font-black text-3xl tracking-tight text-white uppercase">
+              Desktop Required
+            </h1>
+            <h2 className="font-mono text-[10px] text-white/60 tracking-[0.2em] uppercase">
+              // Access Restricted //
+            </h2>
+          </div>
+          
+          <div className="w-full h-[1px] bg-white/10" />
+          
+          <p className="text-sm font-light leading-relaxed text-white/80">
+            This site is currently unavailable on mobile phones. It can be accessed on a desktop device.
+          </p>
+          
+          <p className="text-xs font-mono text-white/60 tracking-wider">
+            Please re-access this site from a desktop or laptop computer.
+          </p>
         </div>
-
-        {/* SINGLE COLUMN RENDER IN NORMAL FLOW */}
-        <div className="w-full h-auto relative text-light-pink border-light-pink">
-          {renderFullPage("text-light-pink border-light-pink", false, null)}
-        </div>
-
-        {/* MOBILE AIRCRAFT FLYBY IN ABSOLUTE SPACE */}
-        <div 
-          style={isGravityActive ? { display: 'none' } : {}}
-          className="absolute top-[100vh] left-0 w-full h-[150px] overflow-hidden pointer-events-none select-none z-10 text-light-pink"
-        >
-          <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
-            <React.Suspense fallback={null}>
-              <B747Schematic />
-            </React.Suspense>
-          </motion.div>
-        </div>
-
-        {/* PHYSICS GRAVITY SANDBOX */}
-        <React.Suspense fallback={null}>
-          <GravitySandbox 
-            isGravityActive={isGravityActive} 
-            setIsGravityActive={setIsGravityActive} 
-            onResetComplete={() => setResetCounter(prev => prev + 1)}
-          />
-        </React.Suspense>
       </main>
     );
   }

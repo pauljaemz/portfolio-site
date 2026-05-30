@@ -208,8 +208,20 @@ body {
 }
 
 .graphic-asset,
-.graphic-asset * {
+.graphic-asset *:not(text) {
   fill: none !important;
+}
+
+/* Completely hide default cursor in browser to only show the premium custom cursor */
+html,
+body,
+a,
+button,
+input,
+textarea,
+select,
+[role="button"] {
+  cursor: none !important;
 }
 
 .font-gellix {
