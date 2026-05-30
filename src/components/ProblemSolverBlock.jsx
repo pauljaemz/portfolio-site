@@ -1,17 +1,31 @@
 import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
 
-export default function ProblemSolverBlock() {
+export default function ProblemSolverBlock({ customTransformY }) {
   const containerRef = React.useRef(null);
   
   // Track currently hovered term in the copywriting below to connect with visual elements above
   const [hoveredTerm, setHoveredTerm] = React.useState(null);
   
   // Setup self-contained viewport scroll progress observer
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: localProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
   });
+
+  // Dynamically map independent viewport translations (lagging spring-driven scrolling)
+  const mappedProgress = useTransform(customTransformY || new useMotionValue(0), (y) => {
+    if (customTransformY) {
+      const scrollY = -y;
+      const start = 800;
+      const end = 2100;
+      const progress = (scrollY - start) / (end - start);
+      return Math.max(0, Math.min(progress, 1));
+    }
+    return 0;
+  });
+
+  const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
   // 1. Box Lid Transforms: slides up and fades as the box opens (starts earlier at 0.15)
   const lidY = useTransform(scrollYProgress, [0.15, 0.38], [0, -45]);
@@ -121,12 +135,12 @@ export default function ProblemSolverBlock() {
 
   const renderDescriptionBlock = (colorClass) => {
     return (
-      <div className={`max-w-3xl mx-auto px-6 w-full text-center mt-16 text-base md:text-lg font-light leading-relaxed select-none ${colorClass}`}>
+      <div className={`max-w-3xl mx-auto px-6 w-full text-center text-base md:text-lg font-light leading-relaxed select-none ${colorClass}`}>
         The heaviest{" "}
         <span 
           onMouseEnter={() => setHoveredTerm('problems')}
           onMouseLeave={() => setHoveredTerm(null)}
-          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           problems
         </span>{" "}
@@ -134,7 +148,7 @@ export default function ProblemSolverBlock() {
         <span 
           onMouseEnter={() => setHoveredTerm('solution')}
           onMouseLeave={() => setHoveredTerm(null)}
-          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           simple solution
         </span>
@@ -142,7 +156,7 @@ export default function ProblemSolverBlock() {
         <span 
           onMouseEnter={() => setHoveredTerm('box')}
           onMouseLeave={() => setHoveredTerm(null)}
-          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 font-bold"
+          className="hover:text-white hover:border-white border-b border-current/20 pb-0.5 cursor-help transition-all duration-300 text-[1.14em] font-extrabold tracking-tight px-1"
         >
           out of the box
         </span>
@@ -184,7 +198,7 @@ export default function ProblemSolverBlock() {
       </div>
 
       {/* DESCRIPTION BLOCK: split vertically down the middle */}
-      <div className="w-full relative min-h-[60px] md:min-h-[80px]">
+      <div className="w-full relative min-h-[140px] pt-16 pb-8">
         {/* Invisible driver (SITS ON TOP to capture mouse hover events cleanly!) */}
         <div className="relative z-20 opacity-0 w-full cursor-help">
           {renderDescriptionBlock("")}

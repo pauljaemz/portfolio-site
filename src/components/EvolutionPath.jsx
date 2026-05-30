@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
 
 // 6-Stage Evolution Configuration (Omitting Years & Descriptions)
 const STAGES = [
@@ -103,7 +103,7 @@ function MilestoneNode({ stage, pathLength }) {
   const nodeY = stage.y;
   const isUp = stage.y < 100;
 
-  const t = (1000 - stage.x) / 1000;
+  const t = stage.x / 1000;
 
   const opacity = useTransform(pathLength, [t - 0.05, t], [0, 1]);
   const scale = useTransform(pathLength, [t - 0.05, t], [0, 1]);
@@ -154,14 +154,29 @@ function MilestoneNode({ stage, pathLength }) {
   );
 }
 
-export default function EvolutionPath() {
+
+export default function EvolutionPath({ customTransformY }) {
   const containerRef = React.useRef(null);
   
   // Track scroll progress of this timeline section
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: localProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
   });
+
+  // Dynamically map independent viewport translations (lagging spring-driven scrolling)
+  const mappedProgress = useTransform(customTransformY || new useMotionValue(0), (y) => {
+    if (customTransformY) {
+      const scrollY = -y;
+      const start = 2700;
+      const end = 4000;
+      const progress = (scrollY - start) / (end - start);
+      return Math.max(0, Math.min(progress, 1));
+    }
+    return 0;
+  });
+
+  const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
   // Holographic 3D Pitch Tilt
   const rotateX = useTransform(scrollYProgress, [0, 0.5, 1.0], [22, 0, 0]);
@@ -184,10 +199,16 @@ export default function EvolutionPath() {
         `}</style>
 
         <defs>
-          {/* SVG Mask for smooth right-to-left draw reveal of active path */}
+          {/* Pattern for dark coral pink and light pink stripes */}
+          <pattern id="stripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="8" height="16" fill="#E55B6C" />
+            <rect x="8" width="8" height="16" fill="#FFD1DC" />
+          </pattern>
+
+          {/* SVG Mask for smooth left-to-right draw reveal of active path */}
           <mask id="drawMask">
             <motion.path
-              d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+              d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
               stroke="white"
               strokeWidth="10"
               strokeLinecap="round"
@@ -262,9 +283,9 @@ export default function EvolutionPath() {
           );
         })}
 
-        {/* 1. Faint Background Dotted Curved Path */}
+        {/* 1. Faint Background Dotted Curved Path - Entire Infinite Line */}
         <path
-          d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+          d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
           stroke="white"
           strokeWidth="1.5"
           strokeOpacity="0.15"
@@ -274,22 +295,33 @@ export default function EvolutionPath() {
           fill="none"
         />
 
-        {/* 2. Soft Ambient White Glow Path underneath (masked) */}
+        {/* 2. Soft Ambient White Glow Path (masked, up to The Future at 900) */}
         <path
-          d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+          d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
           stroke="white"
-          strokeWidth="6"
-          strokeOpacity="0.15"
+          strokeWidth="8"
+          strokeOpacity="0.12"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
           mask="url(#drawMask)"
         />
 
-        {/* 3. Crisp White Core Path (masked) */}
+        {/* 3. Thick White Core Path (masked, up to The Future at 900) */}
         <path
-          d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+          d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
           stroke="white"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          mask="url(#drawMask)"
+        />
+
+        {/* 4. Thinner Stripes Pattern Path (masked, inside the white line, up to The Future) */}
+        <path
+          d="M 0 110 C 20 110, 40 100, 55 95 C 70 90, 85 70, 100 70 C 120 70, 150 105, 170 95 C 190 85, 220 130, 260 130 C 280 130, 310 95, 330 105 C 350 115, 390 50, 420 50 C 440 50, 470 100, 490 90 C 510 80, 550 150, 580 150 C 600 150, 630 105, 650 115 C 670 125, 710 65, 740 65 C 760 65, 790 105, 810 95 C 830 85, 870 135, 900 135"
+          stroke="url(#stripes)"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -297,13 +329,13 @@ export default function EvolutionPath() {
           mask="url(#drawMask)"
         />
 
-        {/* 4. Elegant Static White Dashed Core Path (masked) */}
+        {/* 5. Undefined Dashed Future Path (masked, after The Future, 900 to 1000) */}
         <path
-          d="M 1000 100 C 980 100, 970 120, 940 115 C 930 110, 915 135, 900 135 C 870 135, 830 85, 810 95 C 790 105, 760 65, 740 65 C 710 65, 670 125, 650 115 C 630 105, 600 150, 580 150 C 550 150, 510 80, 490 90 C 470 100, 440 50, 420 50 C 390 50, 350 115, 330 105 C 310 95, 280 130, 260 130 C 220 130, 190 85, 170 95 C 150 105, 120 70, 100 70 C 85 70, 70 90, 55 95 C 40 100, 20 110, 0 110"
+          d="M 900 135 C 915 135, 930 110, 940 115 C 970 120, 980 100, 1000 100"
           stroke="white"
-          strokeWidth="1.5"
-          strokeOpacity="0.8"
-          className="route-pulse-line"
+          strokeWidth="1.8"
+          strokeOpacity="0.45"
+          strokeDasharray="4,6"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"

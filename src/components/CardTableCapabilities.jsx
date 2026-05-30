@@ -1,15 +1,29 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 
-export default function CardTableCapabilities({ isGravityActive }) {
+export default function CardTableCapabilities({ isGravityActive, customTransformY }) {
   const containerRef = React.useRef(null);
   const [focusedMobileCard, setFocusedMobileCard] = React.useState(null);
 
   // Track scroll progress as the section moves from bottom-of-screen to center-of-screen
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: localProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "center center"]
   });
+
+  // Dynamically map independent viewport translations (lagging spring-driven scrolling)
+  const mappedProgress = useTransform(customTransformY || new useMotionValue(0), (y) => {
+    if (customTransformY) {
+      const scrollY = -y;
+      const start = 1700;
+      const end = 2900;
+      const progress = (scrollY - start) / (end - start);
+      return Math.max(0, Math.min(progress, 1));
+    }
+    return 0;
+  });
+
+  const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
   // Smooth out raw scroll port event ticks into buttery spring movements
   const smoothProgress = useSpring(scrollYProgress, {

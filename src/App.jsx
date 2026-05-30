@@ -1,7 +1,8 @@
 import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
 import CustomCursor from './components/CustomCursor';
 import FloatingAsset from './components/FloatingAsset';
+import CalibrationScale from './components/CalibrationScale';
 import './index.css';
 
 // Dynamically import below-the-fold heavy components for bundle size & network optimizations
@@ -123,6 +124,145 @@ export default function App() {
   const [resetCounter, setResetCounter] = React.useState(0);
   const [hoveredIcebreaker, setHoveredIcebreaker] = React.useState(null);
 
+  // Refs and motion values for independent split scroll gravity physics
+  const targetScrollY = React.useRef(0);
+  const leftYRef = React.useRef(0);
+  const rightYRef = React.useRef(0);
+  const leftVelocity = React.useRef(0);
+  const rightVelocity = React.useRef(0);
+
+  const leftTransformY = useMotionValue(0);
+  const rightTransformY = useMotionValue(0);
+
+  // Column mouse tracking state ('left' or 'right')
+  const [hoveredColumn, setHoveredColumn] = React.useState('left');
+
+  // Unified document height tracking for lazy-loaded element scrollbar syncing
+  const [documentHeight, setDocumentHeight] = React.useState(5200); // stable desktop placeholder
+  const contentRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (e.clientX < window.innerWidth / 2) {
+        setHoveredColumn('left');
+      } else {
+        setHoveredColumn('right');
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Update document height after mount & lazy imports settle
+  React.useEffect(() => {
+    const updateHeight = () => {
+      if (contentRef.current) {
+        setDocumentHeight(contentRef.current.scrollHeight);
+      }
+    };
+    
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    
+    const t1 = setTimeout(updateHeight, 500);
+    const t2 = setTimeout(updateHeight, 1500);
+    const t3 = setTimeout(updateHeight, 3000);
+    
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+
+  // Wheel Scroll Intercept (instant reduced-speed + dynamic edge boundary cushioning)
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || window.matchMedia('(hover: none)').matches) {
+      return;
+    }
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      const currentScroll = targetScrollY.current;
+      const maxScroll = documentHeight - window.innerHeight;
+      
+      const distToEdge = Math.min(currentScroll, maxScroll - currentScroll);
+      let speedMultiplier = 0.55;
+
+      if (distToEdge < 300) {
+        const ratio = Math.max(0, distToEdge / 300);
+        speedMultiplier = 0.15 + 0.40 * ratio; // slow deceleration cushioning
+      }
+
+      const step = e.deltaY * speedMultiplier;
+      targetScrollY.current = Math.max(0, Math.min(currentScroll + step, maxScroll));
+      
+      window.scrollTo(0, targetScrollY.current);
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [documentHeight]);
+
+  // Sync target Y when scrollbar dragging or key presses scroll the window
+  React.useEffect(() => {
+    const handleScrollSync = () => {
+      targetScrollY.current = window.scrollY;
+    };
+    window.addEventListener('scroll', handleScrollSync, { passive: true });
+    return () => window.removeEventListener('scroll', handleScrollSync);
+  }, []);
+
+  // Newtonian Mass-Spring Physics Euler Loop (runs inside requestAnimationFrame)
+  React.useEffect(() => {
+    let active = true;
+    
+    const physicsLoop = () => {
+      if (!active) return;
+      
+      const target = targetScrollY.current;
+      
+      const stiffness = 0.035;  
+      const damping = 0.125;    
+      const drag = 0.830;       
+      
+      const activeLerp = 0.15;  
+      
+      if (hoveredColumn === 'left') {
+        leftYRef.current += (target - leftYRef.current) * activeLerp;
+        leftVelocity.current = 0; 
+        
+        const diff = leftYRef.current - rightYRef.current;
+        const accel = diff * stiffness - rightVelocity.current * damping;
+        rightVelocity.current += accel;
+        rightVelocity.current *= drag;
+        rightYRef.current += rightVelocity.current;
+      } else {
+        rightYRef.current += (target - rightYRef.current) * activeLerp;
+        rightVelocity.current = 0; 
+        
+        const diff = rightYRef.current - leftYRef.current;
+        const accel = diff * stiffness - leftVelocity.current * damping;
+        leftVelocity.current += accel;
+        leftVelocity.current *= drag;
+        leftYRef.current += leftVelocity.current;
+      }
+      
+      leftTransformY.set(-leftYRef.current);
+      rightTransformY.set(-rightYRef.current);
+      
+      requestAnimationFrame(physicsLoop);
+    };
+    
+    requestAnimationFrame(physicsLoop);
+    return () => {
+      active = false;
+    };
+  }, [hoveredColumn]);
+
   const renderFloatingAssets = (colorClass) => {
     return (
       <>
@@ -183,7 +323,7 @@ export default function App() {
         </FloatingAsset>
 
         {/* Asset 4: Skating Shoes */}
-        <FloatingAsset initialLeft="84%" initialTop="72%" className="design-asset" isGravityActive={isGravityActive}>
+        <FloatingAsset initialLeft="64%" initialTop="80%" className="design-asset" isGravityActive={isGravityActive}>
           <svg
             className={`w-32 h-20 stroke-[1.5] fill-none graphic-asset filter drop-shadow-[0_0_10px_rgba(255,255,255,0.06)] ${colorClass}`}
             viewBox="0 0 140 80"
@@ -273,7 +413,7 @@ export default function App() {
         </FloatingAsset>
 
         {/* Asset 9: Compass (NEW) */}
-        <FloatingAsset initialLeft="26%" initialTop="74%" className="design-asset" isGravityActive={isGravityActive}>
+        <FloatingAsset initialLeft="76%" initialTop="74%" className="design-asset" isGravityActive={isGravityActive}>
           <svg
             className={`w-24 h-24 stroke-[1.5] fill-none graphic-asset filter drop-shadow-[0_0_10px_rgba(255,255,255,0.06)] ${colorClass}`}
             viewBox="0 0 100 100"
@@ -296,87 +436,111 @@ export default function App() {
           </svg>
         </FloatingAsset>
 
-        {/* Asset 10: Headphones (NEW) */}
-        <FloatingAsset initialLeft="70%" initialTop="34%" className="design-asset" isGravityActive={isGravityActive}>
+        {/* Asset 10: Modern Wireless Headset */}
+        <FloatingAsset initialLeft="58%" initialTop="22%" className="design-asset" isGravityActive={isGravityActive}>
           <svg
             className={`w-24 h-24 stroke-[1.5] fill-none graphic-asset filter drop-shadow-[0_0_10px_rgba(255,255,255,0.06)] ${colorClass}`}
             viewBox="0 0 100 100"
           >
-            {/* Headband Outer Wire */}
-            <path d="M 15 50 A 35 35 0 0 1 85 50" stroke="currentColor" />
-            {/* Headband Inner Cushion Band */}
-            <path d="M 20 50 A 30 30 0 0 1 80 50" stroke="currentColor" strokeDasharray="3,3" />
-            {/* Left Ear Cup */}
-            <rect x="10" y="44" width="8" height="22" rx="3" stroke="currentColor" />
-            <rect x="18" y="47" width="3" height="16" rx="1" stroke="currentColor" />
-            {/* Right Ear Cup */}
-            <rect x="82" y="44" width="8" height="22" rx="3" stroke="currentColor" />
-            <rect x="79" y="47" width="3" height="16" rx="1" stroke="currentColor" />
-            {/* Band adjusters */}
-            <line x1="14" y1="44" x2="14" y2="38" stroke="currentColor" />
-            <line x1="86" y1="44" x2="86" y2="38" stroke="currentColor" />
+            {/* Seamless Modern Headband Arch */}
+            <path d="M 20 48 A 30 30 0 0 1 80 48" stroke="currentColor" strokeWidth="2.5" />
+            {/* Inner Headband Cushion */}
+            <path d="M 24 48 A 26 26 0 0 1 76 48" stroke="currentColor" opacity="0.8" />
+            
+            {/* Sleek Telescopic Slider Arms */}
+            <line x1="20" y1="48" x2="20" y2="58" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="80" y1="48" x2="80" y2="58" stroke="currentColor" strokeWidth="1.5" />
+            
+            {/* Modern U-shaped pivot hangers */}
+            <path d="M 16 58 L 24 58 M 20 58 L 20 62" stroke="currentColor" />
+            <path d="M 76 58 L 84 58 M 80 58 L 80 62" stroke="currentColor" />
+            
+            {/* Modern Rounded Rectangular Ear Cups (Sony/AirPods Max style) */}
+            <rect x="10" y="62" width="20" height="24" rx="6" stroke="currentColor" transform="rotate(-6, 20, 74)" />
+            <rect x="70" y="62" width="20" height="24" rx="6" stroke="currentColor" transform="rotate(6, 80, 74)" />
+            
+            {/* Deep Ergonomic Cushion Pads */}
+            <path d="M 25 64 Q 28 74 25 84" stroke="currentColor" />
+            <path d="M 75 64 Q 72 74 75 84" stroke="currentColor" />
+            
+            {/* Charger Port & Accent Details */}
+            <circle cx="20" cy="80" r="1.5" stroke="currentColor" opacity="0.7" />
+            <circle cx="80" cy="80" r="1.5" stroke="currentColor" opacity="0.7" />
           </svg>
         </FloatingAsset>
 
-        {/* Asset 11: Modern Racing Superbike */}
+        {/* Asset 11: Classic Cafe Racer Bike */}
         <FloatingAsset initialLeft="82%" initialTop="58%" className="design-asset" isGravityActive={isGravityActive}>
           <svg
             className={`w-36 h-24 stroke-[1.5] fill-none graphic-asset filter drop-shadow-[0_0_10px_rgba(255,255,255,0.06)] ${colorClass}`}
             viewBox="0 0 100 60"
           >
-            {/* Front Wheel (Left) */}
+            {/* Front Wheel (Left) - Vintage Wire Spokes */}
             <circle cx="25" cy="42" r="13" stroke="currentColor" />
-            <circle cx="25" cy="42" r="11" stroke="currentColor" strokeDasharray="3,3" opacity="0.6" />
-            <circle cx="25" cy="42" r="8" stroke="currentColor" opacity="0.8" />
-            <circle cx="25" cy="42" r="7" stroke="currentColor" />
+            <circle cx="25" cy="42" r="11" stroke="currentColor" strokeDasharray="2,2" opacity="0.6" />
+            <line x1="25" y1="42" x2="25" y2="29" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="25" y2="55" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="12" y2="42" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="38" y2="42" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="16" y2="33" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="34" y2="51" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="34" y2="33" stroke="currentColor" opacity="0.7" />
+            <line x1="25" y1="42" x2="16" y2="51" stroke="currentColor" opacity="0.7" />
             <circle cx="25" cy="42" r="2.5" stroke="currentColor" />
             
-            {/* Rear Wheel (Right) */}
+            {/* Retro Front Mudguard */}
+            <path d="M 12 39 C 14 32, 22 30, 29 33" stroke="currentColor" />
+            
+            {/* Rear Wheel (Right) - Vintage Wire Spokes */}
             <circle cx="75" cy="42" r="13" stroke="currentColor" />
-            <circle cx="75" cy="42" r="11" stroke="currentColor" strokeDasharray="3,3" opacity="0.6" />
-            <circle cx="75" cy="42" r="6" stroke="currentColor" />
+            <circle cx="75" cy="42" r="11" stroke="currentColor" strokeDasharray="2,2" opacity="0.6" />
+            <line x1="75" y1="42" x2="75" y2="29" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="75" y2="55" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="62" y2="42" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="88" y2="42" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="66" y2="33" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="84" y2="51" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="84" y2="33" stroke="currentColor" opacity="0.7" />
+            <line x1="75" y1="42" x2="66" y2="51" stroke="currentColor" opacity="0.7" />
             <circle cx="75" cy="42" r="2.5" stroke="currentColor" />
             
-            {/* Upside Down Front Fork */}
-            <line x1="25" y1="42" x2="35" y2="16" stroke="currentColor" strokeWidth="1.5" />
-            {/* Clip-on Racing Handlebars */}
-            <line x1="33" y1="18" x2="31" y2="20" stroke="currentColor" strokeWidth="2" />
-            <path d="M 31 20 L 29 22" stroke="currentColor" />
+            {/* Retro Rear Mudguard */}
+            <path d="M 75 29 C 79 30, 83 34, 85 39" stroke="currentColor" />
             
-            {/* Aerodynamic Front Nose Fairing & Headlight Cowl */}
-            <path d="M 33 16 C 34 12, 38 10, 41 10 C 39 13, 37 15, 35 16" stroke="currentColor" />
-            <path d="M 33 16 L 21 24 L 28 32 C 30 35, 33 36, 36 36 L 44 36" stroke="currentColor" />
-            <path d="M 23 23 L 29 25" stroke="currentColor" strokeWidth="1.5" />
+            {/* Front Forks & Low Handlebars with Bar-End Mirror */}
+            <line x1="25" y1="42" x2="35" y2="18" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M 33 18 L 30 18" stroke="currentColor" strokeWidth="2" />
+            <circle cx="29" cy="15" r="2" stroke="currentColor" />
+            <line x1="29" y1="17" x2="30" y2="18" stroke="currentColor" />
+            {/* Classic Round Headlight & Mini Flyscreen */}
+            <circle cx="21" cy="23" r="3.5" stroke="currentColor" />
+            <path d="M 23 17 C 26 15, 29 17, 30 20" stroke="currentColor" />
             
-            {/* Muscular, Angular Sport Fuel Tank */}
-            <path d="M 37 20 C 40 14, 46 13, 52 16 C 55 18, 56 22, 54 25 Z" stroke="currentColor" />
-            <path d="M 44 20 C 47 22, 51 22, 53 25" stroke="currentColor" opacity="0.7" />
+            {/* Vintage Teardrop Fuel Tank & Tank Strap */}
+            <path d="M 35 22 C 42 16, 50 17, 56 25 L 35 25 Z" stroke="currentColor" />
+            <line x1="45" y1="18" x2="45" y2="25" stroke="currentColor" opacity="0.6" />
             
-            {/* Aggressive Fully Cowled Mid-Body / Side Fairing */}
-            <path d="M 33 30 L 40 22 L 54 25 L 52 38 L 33 36 Z" stroke="currentColor" />
-            <line x1="42" y1="26" x2="40" y2="32" stroke="currentColor" />
-            <line x1="46" y1="27" x2="44" y2="33" stroke="currentColor" />
-            <line x1="50" y1="28" x2="48" y2="34" stroke="currentColor" />
+            {/* Classic Ribbed Cafe Racer Seat & Rear Hump Cowl */}
+            <path d="M 70 25 C 70 20, 77 20, 77 25 Z" stroke="currentColor" />
+            <rect x="56" y="22" width="14" height="3" rx="0.5" stroke="currentColor" />
+            <line x1="60" y1="22" x2="60" y2="25" stroke="currentColor" />
+            <line x1="63" y1="22" x2="63" y2="25" stroke="currentColor" />
+            <line x1="66" y1="22" x2="66" y2="25" stroke="currentColor" />
             
-            {/* Aerodynamic Winglet */}
-            <path d="M 33 28 L 39 29 L 36 31 Z" stroke="currentColor" />
+            {/* Exposed Retro Engine block with cooling fins */}
+            <rect x="40" y="29" width="14" height="15" rx="1" stroke="currentColor" />
+            <line x1="42" y1="32" x2="52" y2="32" stroke="currentColor" />
+            <line x1="42" y1="35" x2="52" y2="35" stroke="currentColor" />
+            <line x1="42" y1="38" x2="52" y2="38" stroke="currentColor" />
+            <line x1="42" y1="41" x2="52" y2="41" stroke="currentColor" />
+            <circle cx="47" cy="44" r="5" stroke="currentColor" />
+            <polygon points="52,38 56,36 56,40" stroke="currentColor" opacity="0.7" />
             
-            {/* Exposed Aluminum Twin-Spar Frame */}
-            <path d="M 35 18 C 39 22, 48 24, 54 36" stroke="currentColor" strokeWidth="2" />
+            {/* Swept-up Mega-phone Chrome Exhaust */}
+            <path d="M 41 35 L 43 49 L 60 49 L 78 43 L 77 41 L 60 47 Z" stroke="currentColor" />
             
-            {/* Sharp Upswept Tail Section & Split Seats */}
-            <path d="M 54 25 C 57 26, 60 26, 62 22 C 64 20, 68 18, 74 15 C 72 20, 68 25, 62 28 Z" stroke="currentColor" />
-            <path d="M 64 21 C 67 19, 71 17, 73 15" stroke="currentColor" />
-            
-            {/* Swingarm Rear Fork */}
-            <path d="M 54 36 L 75 42 L 56 38 Z" stroke="currentColor" />
-            
-            {/* Heavy Upswept Racing Exhaust */}
-            <path d="M 48 38 Q 56 42 66 38 L 74 28 L 72 26 L 64 36 Z" stroke="currentColor" />
-            <line x1="68" y1="33" x2="66" y2="26" stroke="currentColor" opacity="0.8" />
-            
-            {/* Rear Tire Hugger / Mudguard */}
-            <path d="M 64 36 C 66 32, 70 30, 75 29 C 76 29, 78 30, 79 31" stroke="currentColor" opacity="0.8" />
+            {/* Classic Dual Rear Suspension */}
+            <line x1="72" y1="25" x2="75" y2="42" stroke="currentColor" strokeDasharray="2,2" />
           </svg>
         </FloatingAsset>
       </>
@@ -415,7 +579,7 @@ export default function App() {
                     : '0px 0px 0px rgba(0,0,0,0)'
                 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 glass-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
+                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
               >
                 <div className="flex flex-col gap-3 sm:gap-5">
                   <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
@@ -459,7 +623,7 @@ export default function App() {
                     : '0px 0px 0px rgba(0,0,0,0)'
                 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 glass-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
+                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
               >
                 <div className="flex flex-col gap-3 sm:gap-5">
                   <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
@@ -502,7 +666,7 @@ export default function App() {
                     : '0px 0px 0px rgba(0,0,0,0)'
                 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 glass-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
+                className={`flex flex-col gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 white-shaded-panel rounded-2xl sm:rounded-3xl transition-all duration-300 relative overflow-hidden group min-h-[220px] sm:min-h-[260px] md:min-h-[300px] justify-between text-left h-full border-white ${colorClass}`}
               >
                 <div className="flex flex-col gap-3 sm:gap-5">
                   <svg className={`w-10 h-6 sm:w-16 sm:h-10 stroke-[1.5] fill-none graphic-asset design-asset ${colorClass}`} viewBox="0 0 200 80">
@@ -542,13 +706,16 @@ export default function App() {
 
   const renderAIProjects = (colorClass) => {
     return (
-      <div className="max-w-7xl mx-auto relative z-10 px-6 md:px-12 lg:px-24">
+      <div className="w-full max-w-none mx-0 relative z-10 px-6 md:px-12 lg:px-20">
         <motion.div {...fadeInUp} className="mb-20 w-full text-left select-none pointer-events-none flex flex-col items-start">
           <h2 className={`font-mono text-sm tracking-widest mb-3 font-black uppercase ${colorClass}`}>
             // EXPERIMENTAL LABS // AI ENGINEERING
           </h2>
           <h3 className={`text-4xl md:text-6xl font-display font-black tracking-tighter mb-4 ${colorClass} leading-tight`}>
-            Oh, and by the way...<br />I'm an AI Engineer.
+            Oh, and by the way...<br />
+            <span className="text-outline font-sans font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide uppercase text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+              I'm an AI Engineer.
+            </span>
           </h3>
           <p className={`text-sm md:text-base font-light opacity-75 ${colorClass}`}>
             I teach machines to think.
@@ -560,7 +727,7 @@ export default function App() {
             <motion.div
               variants={fadeItem}
               whileHover={{ y: -8, border: '2.5px solid #FFFFFF', boxShadow: '0 15px 35px rgba(255, 255, 255, 0.05)' }}
-              className={`glass-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
+              className={`white-shaded-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
             >
               <div className="relative z-10">
                 <h4 className="text-2xl font-display font-black mb-3">
@@ -578,7 +745,7 @@ export default function App() {
             <motion.div
               variants={fadeItem}
               whileHover={{ y: -8, border: '2.5px solid #FFFFFF', boxShadow: '0 15px 35px rgba(255, 255, 255, 0.05)' }}
-              className={`glass-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
+              className={`white-shaded-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
             >
               <div className="relative z-10">
                 <h4 className="text-2xl font-display font-black mb-3">
@@ -598,7 +765,7 @@ export default function App() {
             <motion.div
               variants={fadeItem}
               whileHover={{ y: -8, border: '2.5px solid #FFFFFF', boxShadow: '0 15px 35px rgba(229, 91, 109, 0.05)' }}
-              className={`glass-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
+              className={`white-shaded-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
             >
               <div className="relative z-10">
                 <h4 className="text-2xl font-display font-black mb-3">
@@ -616,7 +783,7 @@ export default function App() {
             <motion.div
               variants={fadeItem}
               whileHover={{ y: -8, border: '2.5px solid #FFFFFF', boxShadow: '0 15px 35px rgba(229, 91, 109, 0.05)' }}
-              className={`glass-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
+              className={`white-shaded-panel p-10 rounded-3xl border-white bg-white/5 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[280px] text-left ${colorClass}`}
             >
               <div className="relative z-10">
                 <h4 className="text-2xl font-display font-black mb-3">
@@ -691,7 +858,6 @@ export default function App() {
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           const windowHeight = window.innerHeight;
-          const documentHeight = document.documentElement.scrollHeight;
           
           // 1. Scroll to the absolute bottom triggers gravity collapse (within 150px threshold)
           if (windowHeight + currentScrollY >= documentHeight - 150) {
@@ -712,10 +878,10 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isGravityActive]);
+  }, [isGravityActive, documentHeight]);
 
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
+    target: sectionRef, // in standard scrolling flow
     offset: ["start end", "end start"]
   });
 
@@ -723,23 +889,138 @@ export default function App() {
   const planeX = useTransform(scrollYProgress, [0, 1], ["90vw", "-120vw"]);
 
   // Scroll-linked parachuting card drops in order as the plane flies right-to-left
-  // Card 3 (Right column) drops first
   const card3DropY = useTransform(scrollYProgress, [0.08, 0.28], [-220, 0]);
   const card3DropOpacity = useTransform(scrollYProgress, [0.08, 0.24], [0, 1]);
   const card3DropScale = useTransform(scrollYProgress, [0.08, 0.28], [0.75, 1]);
 
-  // Card 2 (Middle column) drops second
   const card2DropY = useTransform(scrollYProgress, [0.16, 0.36], [-220, 0]);
   const card2DropOpacity = useTransform(scrollYProgress, [0.16, 0.32], [0, 1]);
   const card2DropScale = useTransform(scrollYProgress, [0.16, 0.36], [0.75, 1]);
 
-  // Card 1 (Left column) drops third (locks in by 0.44 progress)
   const card1DropY = useTransform(scrollYProgress, [0.24, 0.44], [-220, 0]);
   const card1DropOpacity = useTransform(scrollYProgress, [0.24, 0.40], [0, 1]);
   const card1DropScale = useTransform(scrollYProgress, [0.24, 0.44], [0.75, 1]);
+
+  // Unified Full-Page layout builder that is rendered inside viewports (and measurer)
+  const renderFullPage = (colorClass, isDummy = false, customTransformY = null) => {
+    return (
+      <div className={`w-full relative ${colorClass}`}>
+        {/* SECTION 1: THE INTRO / HERO (MASSIVE SCREEN-SPANNING TYPOGRAPHY & PHYSICS-BASED FLOATING ASSETS) */}
+        <section className="relative min-h-screen overflow-hidden">
+          {/* Technical Dotted Grid Backdrop */}
+          <div className="absolute inset-0 tech-grid opacity-20 -z-10 pointer-events-none" />
+
+          <motion.div
+            key={resetCounter}
+            initial={{ scale: 0.92, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 flex flex-col justify-between px-6 md:px-12 lg:px-24 py-16 overflow-hidden"
+          >
+            {/* Spacing Anchor (Top) */}
+            <div className="w-full pt-6 z-30" />
+
+            {/* 6 Floating Background Assets */}
+            <div className="absolute inset-0 pointer-events-none z-10">
+              {renderFloatingAssets(colorClass)}
+            </div>
+
+            {/* Center Screen: Massive Screen-Spanning Header split across the middle */}
+            <div className="flex-1 w-full grid grid-cols-2 items-center select-none pointer-events-none z-20 my-auto relative">
+              {/* Left Column: Paul (Light Pink, right-aligned) */}
+              <div className="text-right pr-6 md:pr-12 flex flex-col justify-center items-end">
+                <h1 className={`text-[10vw] sm:text-[11vw] md:text-[12vw] font-display font-bold leading-none tracking-tighter select-none ${colorClass}`}>
+                  Paul
+                </h1>
+                <h2 className={`text-xs sm:text-sm md:text-lg font-mono tracking-[0.2em] mt-4 font-bold opacity-80 ${colorClass}`}>
+                  // CREATIVE_DEVELOPER
+                </h2>
+              </div>
+              
+              {/* Right Column: James. (Dark Coral, left-aligned) */}
+              <div className="text-left pl-6 md:pl-12 flex flex-col justify-center items-start">
+                <h1 className={`text-[10vw] sm:text-[11vw] md:text-[12vw] font-display font-bold leading-none tracking-tighter select-none ${colorClass}`}>
+                  James.
+                </h1>
+                <h2 className={`text-xs sm:text-sm md:text-lg font-mono tracking-[0.2em] mt-4 font-bold opacity-80 ${colorClass}`}>
+                  FOUNDER_@_DREAMSMITH_INC
+                </h2>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* SECTION 2: THE ICEBREAKERS (DYNAMIC ENTRANCE BLUEPRINTS + STATIC CONVERSATION CARDS) */}
+        <section 
+          ref={isDummy ? sectionRef : null}
+          className="py-32 relative z-10 border-t border-white/10 overflow-hidden bg-transparent"
+        >
+          {/* Huge Aircraft Blueprint - Scroll-linked Flyby */}
+          <div 
+            style={isGravityActive ? { display: 'none' } : {}}
+            className={`absolute inset-0 overflow-hidden pointer-events-none select-none -z-10 ${colorClass}`}
+          >
+            <div className="w-screen relative">
+              <motion.div style={{ x: planeX }} className="w-full">
+                <B747Schematic />
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="relative w-full">
+            {renderIcebreakers(colorClass)}
+          </div>
+        </section>
+
+        {/* SECTION 3: THE PROBLEM SOLVER */}
+        <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING PROBLEM SOLVER INTERACTIVE" />}>
+          <ProblemSolverBlock customTransformY={customTransformY} />
+        </React.Suspense>
+
+        {/* SECTION 4: OPERATING CAPABILITIES (SCROLL-DRIVEN CARD TABLE) */}
+        <React.Suspense fallback={<TechSkeleton height="500px" label="DEALING CAPABILITIES INTERFACE" />}>
+          <CardTableCapabilities isGravityActive={isGravityActive} customTransformY={customTransformY} />
+        </React.Suspense>
+
+        {/* SECTION 5: THE TIMELINE (CURVED S-CURVE PATH) */}
+        <React.Suspense fallback={<TechSkeleton height="600px" label="ASSEMBLING EVOLUTION GRAPH TIMELINE" />}>
+          <EvolutionPath customTransformY={customTransformY} />
+        </React.Suspense>
+
+        {/* SECTION 6: AI ENGINEER (GRAND FINALE) */}
+        <section className="py-40 px-0 bg-transparent relative overflow-hidden border-t border-white/10">
+          <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
+          <div className="relative w-full">
+            {renderAIProjects(colorClass)}
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="py-24 px-0 border-t border-white/10 bg-transparent relative">
+          <div className="relative w-full">
+            {renderFooter(colorClass)}
+          </div>
+        </footer>
+      </div>
+    );
+  };
+
   return (
     <main className={`min-h-screen bg-transparent selection:bg-white/20 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
       <CustomCursor />
+
+      {/* REAL DOCUMENT HEIGHT SCROLL DRIVER */}
+      <div 
+        style={{ height: documentHeight, width: '100%', pointerEvents: 'none' }} 
+        className="absolute top-0 left-0 -z-50"
+      />
+
+      {/* DUMMY SCROLL REFERENCE CONTAINER (in absolute document flow to drive scroll timelines natively) */}
+      <div className="absolute top-0 left-0 w-full opacity-0 pointer-events-none -z-50 overflow-hidden" style={{ height: 'auto' }}>
+        <div ref={contentRef} className="w-full h-auto">
+          {renderFullPage("", true)}
+        </div>
+      </div>
 
       {/* FIXED VERTICAL SPLIT BACKGROUND */}
       <div className="fixed inset-0 flex pointer-events-none -z-20">
@@ -749,190 +1030,30 @@ export default function App() {
       {/* Clean White center separator line */}
       <div className="fixed inset-y-0 left-1/2 w-[2px] bg-white/10 -z-10 pointer-events-none transform -translate-x-1/2 animate-pulse" />
 
-      {/* SECTION 1: THE INTRO / HERO (MASSIVE SCREEN-SPANNING TYPOGRAPHY & PHYSICS-BASED FLOATING ASSETS) */}
-      <section className="relative min-h-screen overflow-hidden">
-        {/* Technical Dotted Grid Backdrop */}
-        <div className="absolute inset-0 tech-grid opacity-20 -z-10 pointer-events-none" />
-
-        <motion.div
-          key={resetCounter}
-          initial={{ scale: 0.92, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 flex flex-col justify-between px-6 md:px-12 lg:px-24 py-16 overflow-hidden"
+      {/* LEFT HALF COLUMN VIEWPORT */}
+      <div className="fixed left-0 top-0 w-[50vw] h-screen overflow-hidden pointer-events-auto">
+        <motion.div 
+          style={{ y: leftTransformY }} 
+          className="w-[100vw] h-auto absolute left-0 top-0 text-light-pink border-light-pink"
         >
-          {/* Spacing Anchor (Top) */}
-          <div className="w-full pt-6 z-30" />
-
-          {/* 6 Floating Background Assets - Left Column Layer (Light Pink) */}
-          <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden pointer-events-none z-10 text-light-pink border-light-pink">
-            <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
-              {renderFloatingAssets("text-light-pink border-light-pink")}
-            </div>
-          </div>
-
-          {/* 6 Floating Background Assets - Right Column Layer (Dark Coral) */}
-          <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden pointer-events-none z-10 text-dark-coral border-dark-coral">
-            <div 
-              className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
-              style={{ left: '-50vw' }}
-            >
-              {renderFloatingAssets("text-dark-coral border-dark-coral")}
-            </div>
-          </div>
-
-          {/* Center Screen: Massive Screen-Spanning Header split across the middle */}
-          <div className="flex-1 w-full grid grid-cols-2 items-center select-none pointer-events-none z-20 my-auto relative">
-            {/* Left Column: Paul (Light Pink, right-aligned) */}
-            <div className="text-right pr-6 md:pr-12 flex flex-col justify-center items-end">
-              <h1 className="text-[10vw] sm:text-[11vw] md:text-[12vw] font-display font-bold leading-none tracking-tighter text-light-pink select-none">
-                Paul
-              </h1>
-              <h2 className="text-xs sm:text-sm md:text-lg font-mono tracking-[0.2em] text-light-pink/70 mt-4 font-bold">
-                // CREATIVE_DEVELOPER
-              </h2>
-            </div>
-            
-            {/* Right Column: James. (Dark Coral, left-aligned) */}
-            <div className="text-left pl-6 md:pl-12 flex flex-col justify-center items-start">
-              <h1 className="text-[10vw] sm:text-[11vw] md:text-[12vw] font-display font-bold leading-none tracking-tighter text-dark-coral select-none">
-                James.
-              </h1>
-              <h2 className="text-xs sm:text-sm md:text-lg font-mono tracking-[0.2em] text-dark-coral/80 mt-4 font-bold">
-                FOUNDER_@_DREAMSMITH_INC
-              </h2>
-            </div>
-          </div>
+          {renderFullPage("text-light-pink border-light-pink", false, leftTransformY)}
         </motion.div>
-      </section>
+      </div>
 
-      {/* SECTION 2: THE ICEBREAKERS (DYNAMIC ENTRANCE BLUEPRINTS + STATIC CONVERSATION CARDS) */}
-      <section 
-        ref={sectionRef}
-        className="py-32 relative z-10 border-t border-white/10 overflow-hidden bg-transparent"
-      >
-        {/* Huge Aircraft Blueprint - Scroll-linked Flyby - Left Column Layer (Light Pink) */}
-        <div 
-          style={isGravityActive ? { display: 'none' } : {}}
-          className="absolute left-0 top-[12%] w-[50vw] overflow-hidden pointer-events-none select-none -z-10 text-light-pink"
+      {/* RIGHT HALF COLUMN VIEWPORT */}
+      <div className="fixed left-[50vw] top-0 w-[50vw] h-screen overflow-hidden pointer-events-auto">
+        <motion.div 
+          style={{ y: rightTransformY, left: '-50vw' }} 
+          className="w-[100vw] h-auto absolute top-0 text-dark-coral border-dark-coral"
         >
-          <div className="w-screen relative">
-            <motion.div style={{ x: planeX }} className="w-full">
-              <B747Schematic />
-            </motion.div>
-          </div>
-        </div>
+          {renderFullPage("text-dark-coral border-dark-coral", false, rightTransformY)}
+        </motion.div>
+      </div>
 
-        {/* Huge Aircraft Blueprint - Scroll-linked Flyby - Right Column Layer (Dark Coral) */}
-        <div 
-          style={isGravityActive ? { display: 'none' } : {}}
-          className="absolute left-[50vw] top-[12%] w-[50vw] overflow-hidden pointer-events-none select-none -z-10 text-dark-coral"
-        >
-          <div 
-            className="w-screen relative"
-            style={{ left: '-50vw' }}
-          >
-            <motion.div style={{ x: planeX }} className="w-full">
-              <B747Schematic />
-            </motion.div>
-          </div>
-        </div>
+      {/* CENTER HOLOGRAPHIC CALIBRATION GAUGE (HUD) */}
+      <CalibrationScale leftTransformY={leftTransformY} rightTransformY={rightTransformY} />
 
-        <div className="relative w-full">
-          {/* Layout Driver (Invisible) */}
-          <div className="opacity-0 pointer-events-none select-none w-full">
-            {renderIcebreakers("")}
-          </div>
-
-          {/* Left Column Layer (Light Pink) */}
-          <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink fill-light-pink stroke-light-pink z-10">
-            <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
-              {renderIcebreakers("text-light-pink")}
-            </div>
-          </div>
-
-          {/* Right Column Layer (Dark Coral) */}
-          <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral fill-dark-coral stroke-dark-coral z-10">
-            <div 
-              className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
-              style={{ left: '-50vw' }}
-            >
-              {renderIcebreakers("text-dark-coral")}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 3: THE PROBLEM SOLVER */}
-      <React.Suspense fallback={<TechSkeleton height="400px" label="CREATING PROBLEM SOLVER INTERACTIVE" />}>
-        <ProblemSolverBlock />
-      </React.Suspense>
-
-      {/* SECTION 4: OPERATING CAPABILITIES (SCROLL-DRIVEN CARD TABLE) */}
-      <React.Suspense fallback={<TechSkeleton height="500px" label="DEALING CAPABILITIES INTERFACE" />}>
-        <CardTableCapabilities isGravityActive={isGravityActive} />
-      </React.Suspense>
-
-      {/* SECTION 5: THE TIMELINE (CURVED S-CURVE PATH) */}
-      <React.Suspense fallback={<TechSkeleton height="600px" label="ASSEMBLING EVOLUTION GRAPH TIMELINE" />}>
-        <EvolutionPath />
-      </React.Suspense>
-
-      {/* SECTION 6: AI ENGINEER (GRAND FINALE) */}
-      <section className="py-40 px-0 bg-transparent relative overflow-hidden border-t border-white/10">
-        <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
-
-        <div className="relative w-full">
-          {/* Layout Driver (Invisible) */}
-          <div className="opacity-0 pointer-events-none select-none w-full">
-            {renderAIProjects("")}
-          </div>
-
-          {/* Left Column Layer (Light Pink) */}
-          <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink fill-light-pink stroke-light-pink z-10">
-            <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
-              {renderAIProjects("text-light-pink")}
-            </div>
-          </div>
-
-          {/* Right Column Layer (Dark Coral) */}
-          <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral fill-dark-coral stroke-dark-coral z-10">
-            <div 
-              className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
-              style={{ left: '-50vw' }}
-            >
-              {renderAIProjects("text-dark-coral")}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-24 px-0 border-t border-white/10 bg-transparent relative transition-all duration-700">
-        <div className="relative w-full">
-          {/* Layout Driver (Invisible) */}
-          <div className="opacity-0 pointer-events-none select-none w-full">
-            {renderFooter("")}
-          </div>
-
-          {/* Left Column Layer (Light Pink) */}
-          <div className="absolute left-0 top-0 bottom-0 w-[50vw] overflow-hidden text-light-pink fill-light-pink stroke-light-pink z-10">
-            <div className="w-screen h-full text-inherit fill-inherit stroke-inherit relative">
-              {renderFooter("text-light-pink")}
-            </div>
-          </div>
-
-          {/* Right Column Layer (Dark Coral) */}
-          <div className="absolute left-[50vw] top-0 bottom-0 w-[50vw] overflow-hidden text-dark-coral fill-dark-coral stroke-dark-coral z-10">
-            <div 
-              className="w-screen h-full text-inherit fill-inherit stroke-inherit relative"
-              style={{ left: '-50vw' }}
-            >
-              {renderFooter("text-dark-coral")}
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* PHYSICS GRAVITY SANDBOX */}
       <React.Suspense fallback={null}>
         <GravitySandbox 
           isGravityActive={isGravityActive} 
