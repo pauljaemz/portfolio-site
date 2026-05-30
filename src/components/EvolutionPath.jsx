@@ -159,6 +159,14 @@ export default function EvolutionPath({ customTransformY }) {
   const containerRef = React.useRef(null);
   const boundsRef = React.useRef({ start: 2700, end: 4000 });
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   React.useEffect(() => {
     const updateBounds = () => {
       if (containerRef.current) {
@@ -205,7 +213,7 @@ export default function EvolutionPath({ customTransformY }) {
   const scrollYProgress = customTransformY ? mappedProgress : localProgress;
 
   // Holographic 3D Pitch Tilt
-  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1.0], [22, 0, 0]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1.0], [!isMobile ? 22 : 0, 0, 0]);
   
   // Timeline Line Growth (Reduced starting delay to 0.25)
   const pathLength = useTransform(scrollYProgress, [0.25, 0.60, 1.0], [0, 1, 1]);
@@ -387,13 +395,31 @@ export default function EvolutionPath({ customTransformY }) {
           </h3>
         </div>
 
-        {/* Responsive Horizontal SVG Viewport Container (Perfect scale-to-fit on all screens, no swiping) */}
-        <div className="w-full relative px-4 md:px-12 lg:px-24 select-none overflow-visible py-4 h-[280px]">
-          {renderTimelineSVG(colorClass)}
+        {/* Responsive Horizontal SVG Viewport Container (Horizontal swiping on mobile, fit on desktop) */}
+        <div className="w-full relative px-4 md:px-12 lg:px-24 select-none overflow-x-auto scrollbar-none py-4 h-[280px]">
+          <div className="min-w-[760px] md:min-w-0 w-full h-full">
+            {renderTimelineSVG(colorClass)}
+          </div>
         </div>
       </div>
     );
   };
+
+  if (isMobile) {
+    return (
+      <section 
+        ref={containerRef}
+        className="w-full flex flex-col justify-center items-center relative bg-transparent border-t border-white/10 overflow-hidden pt-12 pb-24 px-0"
+      >
+        <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
+        <div className="w-full max-w-none flex flex-col items-center justify-center bg-transparent py-12 px-0 border-y border-white/10 relative">
+          <div className="w-full px-4 text-light-pink stroke-light-pink fill-light-pink">
+            {renderTimelineContent("text-light-pink")}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 

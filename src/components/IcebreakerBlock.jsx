@@ -6,6 +6,14 @@ export default function IcebreakerBlock({ customTransformY, colorClass, isGravit
   const activeRef = sectionRef || localRef;
   const [hoveredIcebreaker, setHoveredIcebreaker] = React.useState(null);
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Setup self-contained viewport scroll progress observer
   const { scrollYProgress: localProgress } = useScroll({
     target: activeRef,
@@ -28,15 +36,16 @@ export default function IcebreakerBlock({ customTransformY, colorClass, isGravit
 
   // Scroll-linked parachuting card drops in order as the plane flies right-to-left
   // Synchronized to match the B747's spring-glide overhead sweep with a premium Y height
-  const card3DropY = useTransform(scrollYProgress, [0.25, 0.45], [-300, 0]);
+  const dropOffset = isMobile ? -40 : -300;
+  const card3DropY = useTransform(scrollYProgress, [0.25, 0.45], [dropOffset, 0]);
   const card3DropOpacity = useTransform(scrollYProgress, [0.25, 0.40], [0, 1]);
   const card3DropScale = useTransform(scrollYProgress, [0.25, 0.45], [0.75, 1]);
 
-  const card2DropY = useTransform(scrollYProgress, [0.35, 0.55], [-300, 0]);
+  const card2DropY = useTransform(scrollYProgress, [0.35, 0.55], [dropOffset, 0]);
   const card2DropOpacity = useTransform(scrollYProgress, [0.35, 0.50], [0, 1]);
   const card2DropScale = useTransform(scrollYProgress, [0.35, 0.55], [0.75, 1]);
 
-  const card1DropY = useTransform(scrollYProgress, [0.45, 0.65], [-300, 0]);
+  const card1DropY = useTransform(scrollYProgress, [0.45, 0.65], [dropOffset, 0]);
   const card1DropOpacity = useTransform(scrollYProgress, [0.45, 0.60], [0, 1]);
   const card1DropScale = useTransform(scrollYProgress, [0.45, 0.65], [0.75, 1]);
 
@@ -58,7 +67,7 @@ export default function IcebreakerBlock({ customTransformY, colorClass, isGravit
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-3 gap-2 sm:gap-6 md:gap-8 items-stretch">
+        <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 md:gap-8 items-stretch">
           {/* Card 1: Car Talk (Left Column) - Drops 3rd */}
           <div className="relative overflow-visible h-full">
             <motion.div

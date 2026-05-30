@@ -11,7 +11,7 @@ const CardTableCapabilities = React.lazy(() => import('./components/CardTableCap
 const EvolutionPath = React.lazy(() => import('./components/EvolutionPath'));
 const GravitySandbox = React.lazy(() => import('./components/GravitySandbox'));
 const IcebreakerBlock = React.lazy(() => import('./components/IcebreakerBlock'));
-import B747Schematic from './components/B747Schematic';
+const B747Schematic = React.lazy(() => import('./components/B747Schematic'));
 
 // Reusable animation configuration
 const fadeInUp = {
@@ -62,6 +62,18 @@ function TechSkeleton({ height = '400px', label = 'LOADING SYSTEM CAPABILITIES' 
 }
 
 export default function App() {
+  const { scrollY } = useScroll();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [isGravityActive, setIsGravityActive] = React.useState(false);
   const [resetCounter, setResetCounter] = React.useState(0);
 
@@ -669,13 +681,16 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isGravityActive, documentHeight]);
 
-  const scrollYProgress = useTransform(leftTransformY, (y) => {
-    const scrollY = -y;
-    const start = 180; // Calibrated to drop before middle of screen
-    const end = 1100;
-    const progress = (scrollY - start) / (end - start);
-    return Math.max(0, Math.min(progress, 1));
-  });
+  const scrollYProgress = useTransform(
+    isMobile ? scrollY : leftTransformY,
+    (y) => {
+      const scrollValue = isMobile ? y : -y;
+      const start = 180; // Calibrated to drop before middle of screen
+      const end = 1100;
+      const progress = (scrollValue - start) / (end - start);
+      return Math.max(0, Math.min(progress, 1));
+    }
+  );
 
   const planeProgress = useSpring(scrollYProgress, {
     stiffness: 45,
@@ -776,6 +791,50 @@ export default function App() {
     );
   };
 
+  if (isMobile) {
+    return (
+      <main className={`min-h-screen bg-transparent selection:bg-white/20 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
+        <CustomCursor />
+
+        {/* FIXED SINGLE BG */}
+        <div className="fixed inset-0 bg-[#E55B6C] -z-20 pointer-events-none" />
+
+        {/* DUMMY SCROLL REFERENCE CONTAINER (needed to keep contentRef and height checks operational) */}
+        <div className="absolute top-0 left-0 w-full opacity-0 pointer-events-none -z-50 overflow-hidden" style={{ height: 'auto' }}>
+          <div ref={contentRef} className="w-full h-auto">
+            {renderFullPage("", true)}
+          </div>
+        </div>
+
+        {/* SINGLE COLUMN RENDER IN NORMAL FLOW */}
+        <div className="w-full h-auto relative text-light-pink border-light-pink">
+          {renderFullPage("text-light-pink border-light-pink", false, null)}
+        </div>
+
+        {/* MOBILE AIRCRAFT FLYBY IN ABSOLUTE SPACE */}
+        <div 
+          style={isGravityActive ? { display: 'none' } : {}}
+          className="absolute top-[100vh] left-0 w-full h-[150px] overflow-hidden pointer-events-none select-none z-10 text-light-pink"
+        >
+          <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
+            <React.Suspense fallback={null}>
+              <B747Schematic />
+            </React.Suspense>
+          </motion.div>
+        </div>
+
+        {/* PHYSICS GRAVITY SANDBOX */}
+        <React.Suspense fallback={null}>
+          <GravitySandbox 
+            isGravityActive={isGravityActive} 
+            setIsGravityActive={setIsGravityActive} 
+            onResetComplete={() => setResetCounter(prev => prev + 1)}
+          />
+        </React.Suspense>
+      </main>
+    );
+  }
+
   return (
     <main className={`min-h-screen bg-transparent selection:bg-white/20 font-sans overflow-x-hidden relative ${isGravityActive ? 'gravity-active' : ''}`}>
       <CustomCursor />
@@ -833,7 +892,9 @@ export default function App() {
         >
           <div className="absolute top-[100vh] left-0 w-[100vw] h-[300px] overflow-hidden pointer-events-none">
             <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
-              <B747Schematic />
+              <React.Suspense fallback={null}>
+                <B747Schematic />
+              </React.Suspense>
             </motion.div>
           </div>
         </motion.div>
@@ -850,7 +911,9 @@ export default function App() {
         >
           <div className="absolute top-[100vh] left-0 w-[100vw] h-[300px] overflow-hidden pointer-events-none">
             <motion.div style={{ x: planeX }} className="w-full relative pointer-events-none">
-              <B747Schematic />
+              <React.Suspense fallback={null}>
+                <B747Schematic />
+              </React.Suspense>
             </motion.div>
           </div>
         </motion.div>

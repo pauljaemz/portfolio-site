@@ -6,6 +6,14 @@ export default function ProblemSolverBlock({ customTransformY }) {
   
   // Track currently hovered term in the copywriting below to connect with visual elements above
   const [hoveredTerm, setHoveredTerm] = React.useState(null);
+
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Setup self-contained viewport scroll progress observer
   const { scrollYProgress: localProgress } = useScroll({
@@ -164,6 +172,23 @@ export default function ProblemSolverBlock({ customTransformY }) {
       </div>
     );
   };
+
+  if (isMobile) {
+    return (
+      <section 
+        ref={containerRef}
+        className="pt-16 pb-20 relative z-10 border-t border-b border-white/10 overflow-hidden w-full bg-transparent"
+      >
+        <div className="absolute inset-0 tech-grid opacity-15 pointer-events-none -z-10" />
+        <div className="w-full relative text-light-pink">
+          {renderColossalTypography("text-light-pink")}
+        </div>
+        <div className="w-full relative pt-10 pb-4 text-light-pink">
+          {renderDescriptionBlock("text-light-pink")}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 

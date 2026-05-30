@@ -5,6 +5,14 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
   const containerRef = React.useRef(null);
   const [focusedMobileCard, setFocusedMobileCard] = React.useState(null);
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Track scroll progress as the section moves from bottom-of-screen to center-of-screen
   const { scrollYProgress: localProgress } = useScroll({
     target: containerRef,
@@ -544,6 +552,22 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
       </div>
     );
   };
+
+  if (isMobile) {
+    return (
+      <section 
+        ref={containerRef} 
+        className="pt-16 pb-12 relative bg-transparent border-t border-white/10 overflow-hidden"
+        onClick={handleTabletopClick}
+      >
+        {/* Table Felt Backdrops & Blueprint Grid Overlay */}
+        <div className="absolute inset-0 tech-grid opacity-30 pointer-events-none" />
+        <div className="w-full px-4 text-light-pink fill-light-pink stroke-light-pink">
+          {renderTableContent("text-light-pink")}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 
