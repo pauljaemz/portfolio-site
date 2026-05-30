@@ -130,13 +130,10 @@ body {
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Custom Card Skate Animation */
 @keyframes skateRoll {
-  0% { transform: translateX(-15px) scaleX(1); }
-  45% { transform: translateX(45px) scaleX(1); }
-  50% { transform: translateX(45px) scaleX(-1); }
-  95% { transform: translateX(-15px) scaleX(-1); }
-  100% { transform: translateX(-15px) scaleX(1); }
+  0% { transform: translateX(-15px); }
+  50% { transform: translateX(45px); }
+  100% { transform: translateX(-15px); }
 }
 
 .animate-skate {

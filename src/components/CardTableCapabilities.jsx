@@ -178,7 +178,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                 </svg>
               </div>
               <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
-                Turning caffeine and vague "make it pop" requests into functional architecture.
+                Helping businesses design a creative online front desk that makes visitors actually want to stick around. I build custom digital lobbies that are super friendly, extremely smooth, and totally jargon-free.
               </p>
             </div>
             <div className="pt-4 border-t border-white/10 flex justify-between items-center">
@@ -257,11 +257,11 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                 </svg>
               </div>
               <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
-                Speed, balance, and carving high-velocity corners on wheels. Subdistrict 2nd place winner, proving my speed is stable on concrete as well as in production.
+                Carving high-velocity corners on eight wheels because flying fast on concrete is the ultimate freedom. Plus, if the AI apocalypse does happen, I can easily glide away from the slow-moving metal bots.
               </p>
             </div>
 
-            <div className="absolute bottom-16 left-0 right-0 h-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
+            <div className="absolute bottom-16 left-0 right-0 h-8 opacity-80 pointer-events-none overflow-hidden">
               <div className="absolute left-1/4 top-0 animate-skate">
                 <svg className="w-10 h-7 stroke-[1.5] fill-none" viewBox="0 0 24 16">
                   <path d="M 2 10 L 4 4 C 5 3, 10 3, 11 4 L 12 7 L 16 8 C 18 9, 20 9, 21 11 L 22 12 L 21 13 L 2 13 Z" stroke="currentColor" />
@@ -298,11 +298,11 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                 </svg>
               </div>
               <p className="opacity-70 text-sm leading-relaxed font-light mb-6">
-                Layering frequencies and beatmatching. mixing tracks together is just real-time compilation: combining distinct audio signals into a perfect harmony.
+                Finding the absolute sweet spot between two different songs and blending them into a single, seamless groove. Because life is better when good beats come together perfectly.
               </p>
             </div>
 
-            <div className="absolute right-6 bottom-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none flex gap-2">
+            <div className="absolute right-6 bottom-16 opacity-80 pointer-events-none flex gap-2">
               <svg className="w-7 h-7 animate-spin" style={{ animationDuration: '4s' }} viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" />
                 <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
@@ -420,7 +420,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   Freelancer / Web Dev
                 </h4>
                 <p className="opacity-70 text-xs leading-relaxed font-light">
-                  Turning caffeine and vague "make it pop" requests into functional architecture.
+                  Helping businesses design a creative online front desk that makes visitors actually want to stick around. I build custom digital lobbies that are super friendly, extremely smooth, and totally jargon-free.
                 </p>
               </div>
               <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
@@ -478,7 +478,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   Roller Skating
                 </h4>
                 <p className="opacity-70 text-xs leading-relaxed font-light">
-                  Speed, balance, and carving corners on wheels. Subdistrict 2nd place winner, proving concrete speed is stable.
+                  Carving high-velocity corners on eight wheels because flying fast on concrete is the ultimate freedom. Plus, if the AI apocalypse does happen, I can easily glide away from the slow-moving metal bots.
                 </p>
               </div>
               <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
@@ -507,7 +507,7 @@ export default function CardTableCapabilities({ isGravityActive, customTransform
                   Music Mixing
                 </h4>
                 <p className="opacity-70 text-xs leading-relaxed font-light">
-                  Layering frequencies and beatmatching. Mixing tracks is just real-time compilation: perfect harmony.
+                  Finding the absolute sweet spot between two different songs and blending them into a single, seamless groove. Because life is better when good beats come together perfectly.
                 </p>
               </div>
               <div className="pt-3 border-t border-white/10 flex justify-between items-center text-[9px] font-mono opacity-80">
