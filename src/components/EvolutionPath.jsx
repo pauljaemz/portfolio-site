@@ -388,7 +388,7 @@ export default function EvolutionPath({ customTransformY, isSnapping }) {
         {/* Section Header - Centered */}
         <div className="mb-12 w-full text-center select-none pointer-events-none flex flex-col items-center">
           <h2 className="font-mono text-xs tracking-widest font-black uppercase mb-3">
-            // TIMELINE // EVOLUTION_LOG
+            // HOW_WE_GOT_HERE
           </h2>
           <h3 className="text-4xl md:text-6xl font-display font-black tracking-tight">
             The Destiny.
