@@ -622,9 +622,9 @@ export default function App() {
       <div className="w-full max-w-none mx-0 relative z-10 px-6 md:px-12 lg:px-20">
         <motion.div {...fadeInUp} className="mb-20 w-full text-left select-none pointer-events-none flex flex-col items-start">
           <h3 className={`text-4xl md:text-6xl font-display font-black tracking-tighter mb-4 ${colorClass} leading-tight`}>
-            Oh, and by the way...<br />
+            Oh, right.<br />
             <span className="font-gellix font-extrabold block mt-3 select-auto pointer-events-auto cursor-default tracking-wide text-3xl sm:text-[38px] md:text-[46px] lg:text-[54px]">
-              I'm an AI Engineer
+              I also build AI.
             </span>
           </h3>
           <p className={`text-base sm:text-lg md:text-xl font-black opacity-75 ${colorClass}`}>

@@ -12,7 +12,7 @@ const STAGES = [
   },
   {
     index: "02",
-    name: "NAIPUNNYA COLLEGE",
+    name: "NIMIT",
     sub: "Foundations",
     x: 260,
     y: 130
@@ -299,7 +299,7 @@ export default function EvolutionPath({ customTransformY, isSnapping }) {
                   x={nodeX}
                   y={isUp ? nodeY - 14 : nodeY + 24}
                   textAnchor="middle"
-                  className="font-display font-bold text-[10px] md:text-[10px] fill-current opacity-40 tracking-wider md:tracking-widest uppercase select-none cursor-help hover:opacity-75 transition-opacity"
+                  className="font-display font-bold text-[10px] md:text-[10px] fill-current opacity-80 tracking-wider md:tracking-widest uppercase select-none cursor-help hover:opacity-100 transition-opacity"
                 >
                   {altStage.name}
                 </text>
